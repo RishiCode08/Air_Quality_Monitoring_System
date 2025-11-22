@@ -145,11 +145,14 @@ const firebaseConfig = {
   storageBucket: "esp32-airquality-monitor.appspot.com",
   messagingSenderId: "793658380467",
   appId: "1:793658380467:web:5c84e543afa345c13520c6"
+
+
+
 };
 
 firebase.initializeApp(firebaseConfig);
 const DEVICE_ID = 'AIR-SENSE-PRO';
-const REF = 'devices/' + DEVICE_ID + '/readings';
+const REF = `devices/${DEVICE_ID}/readings`;
 // ---------------- UI helpers ----------------
 function showAlert(msg, color) {
   const el = document.getElementById('alertBox');
@@ -350,6 +353,7 @@ function setConnection(online){ connected = online; document.getElementById('con
 </script>
 </body>
 </html>
+
 
 
 
