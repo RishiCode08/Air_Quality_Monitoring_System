@@ -260,10 +260,8 @@ function downloadCSV(){
   // CSV headers
   const headers = ['timestamp','temperature_c','humidity_pct','mq135_raw_or_ppm','aqi_est_status'];
   const rows = liveHistory.map(r=>[r.ts||'', r.temperature, r.humidity, r.gas_ppm, r.status||'']);
-  let csv = headers.join(',')+'
-';
-  rows.forEach(r=>{ csv += r.map(v=>('"'+String(v).replace(/"/g,'""')+'"')).join(',')+'
-'; });
+  let csv = headers.join(',')+'\n';
+  rows.forEach(r=>{ csv += r.map(v=>('"'+String(v).replace(/"/g,'""')+'"')).join(',')+'\n'; });
   const blob = new Blob([csv],{type:'text/csv'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href=url; a.download = `${DEVICE_ID}_data.csv`; a.click(); URL.revokeObjectURL(url);
