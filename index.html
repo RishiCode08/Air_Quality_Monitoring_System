@@ -457,8 +457,21 @@ function linearRegressionPredict(arr,forwardSteps=6){
 function runForecast(ppmArr){ const pred = linearRegressionPredict(ppmArr,6); if(pred===null) return; const meta = aqiMeta(pred); document.getElementById('predictionText').innerHTML = '<strong>Next ~30-60 min forecast:</strong><br>Predicted AQI (approx): <span style="color:' + meta.color + ';font-weight:800">' + pred + '</span><br><em>' + meta.health + '</em>'; }
 
 /* ================== initial UI + connection detection ================== */
-gsap.from('.card',{y:12,opacity:0,duration:0.7,stagger:0.05});
-loadLastHours(24,'ppm');
+window.addEventListener("load", () => {
+
+    // Animations
+    gsap.from('.card', {
+        y: 12,
+        opacity: 0,
+        duration: 0.7,
+        stagger: 0.05
+    });
+
+    // Load default historical data safely (chart now exists)
+    loadLastHours(24, 'ppm');
+
+});
+
 
 setInterval(()=> {
   if(!lastTimestamp){ connected=false; setConnection(false); return; }
@@ -473,6 +486,7 @@ function setConnection(online){ connected=online; document.getElementById('connS
 </script>
 </body>
 </html>
+
 
 
 
