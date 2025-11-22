@@ -11,7 +11,7 @@
 
 <!-- Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+<script src="https://unpkg.com/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
 
@@ -297,10 +297,8 @@ function downloadCSV(){
   if(liveHistory.length===0){ showAlert('No data to download'); return; }
   const headers = ['timestamp','temperature_c','humidity_pct','mq135_ppm','aqi_status'];
   const rows = liveHistory.map(r => [r.ts||'', r.temperature, r.humidity, r.gas_ppm, r.status||'']);
-  let csv = headers.join(',') + '
-';
-  rows.forEach(r => { csv += r.map(v => ('"' + String(v).replace(/"/g,'""') + '"')).join(',') + '
-'; });
+  let csv = headers.join(',') + '\n';
+  rows.forEach(r => { csv += r.map(v => ('"' + String(v).replace(/"/g,'""') + '"')).join(',') + '\n'; });
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${DEVICE_ID}_data.csv`; a.click(); URL.revokeObjectURL(url);
 }
@@ -356,3 +354,4 @@ function setConnection(online){ connected = online; document.getElementById('con
 </script>
 </body>
 </html>
+
