@@ -359,7 +359,8 @@ async function loadRange(startMs, endMs, metric='ppm'){
     const snap = await firebase.database().ref(REF).once('value');
     const data = snap.val();
     if(!data){ showAlert('No historical data'); return; }
-    const items = Object.keys(data).map(k=>({ts:k,...data[k]}));
+    const items = Object.keys(data).map(k => ({ ts: k, ...data[k] }));
+
     const filtered = items.filter(it => { const ts = parseTimestampKey(it.ts); return !isNaN(ts) && ts >= startMs && ts <= endMs; });
     filtered.sort((a,b)=>parseTimestampKey(a.ts) - parseTimestampKey(b.ts));
     histChart.data.labels = filtered.map(x => (new Date(parseTimestampKey(x.ts))).toLocaleString());
@@ -453,3 +454,4 @@ function setConnection(online){ connected=online; document.getElementById('connS
 </script>
 </body>
 </html>
+
