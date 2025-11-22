@@ -148,10 +148,8 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const DEVICE_ID = 'AIR-SENSE-PRO'; // EXACT casing must match your DB key const REF = 'devices/' + DEVICE_ID + '/readings'; // do NOT toLowerCase unless you changed DB keys
-// Quick debug (comment out in production)
-console.log('Firebase initialized (compat)');
-
+const DEVICE_ID = 'AIR-SENSE-PRO';
+const REF = 'devices/' + DEVICE_ID + '/readings';
 // ---------------- UI helpers ----------------
 function showAlert(msg, color) {
   const el = document.getElementById('alertBox');
@@ -352,5 +350,6 @@ function setConnection(online){ connected = online; document.getElementById('con
 </script>
 </body>
 </html>
+
 
 
