@@ -1,128 +1,81 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>ARTIFEX AQI - YOUR AIR, YOUR ACTION</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ARTIFEX AQI - Plan Smarter, Breathe Safer</title>
 
-  <!-- Firebase (compat) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
-  <!-- Chart.js + zoom plugin -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://unpkg.com/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+<!-- Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
 
-  <!-- small helpers -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-  <style>
-    :root{
-      --bg:#050505; --card:rgba(255,255,255,0.04);
-      --neon:#00eaff; --accent:#00ff88; --muted:#9aa3b2;
-      --glass: rgba(255,255,255,0.02);
-      --radius: 12px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:#fff;-webkit-font-smoothing:antialiased;line-height:1.3}
-    /* Top bar (pro analytics) */
-    .topbar{
-      display:flex;align-items:center;justify-content:space-between;
-      gap:16px;padding:14px 20px;background:linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.12));
-      border-bottom:1px solid rgba(255,255,255,0.02);backdrop-filter: blur(6px);
-    }
-    .brand{display:flex;align-items:center;gap:14px}
-    .brand .logo{
-      width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,#00eaff,#00ff88);
-      display:flex;align-items:center;justify-content:center;font-weight:900;color:#002;font-size:18px;box-shadow:0 6px 20px rgba(0,234,255,0.06)
-    }
-    .brand h1{margin:0;font-size:clamp(16px,2.2vw,22px);letter-spacing:1px;color:var(--neon)}
-    .nav{display:flex;gap:12px;align-items:center}
-    .nav a{color:var(--muted);text-decoration:none;padding:8px 10px;border-radius:8px}
-    .nav a.active{color:#001;background:var(--neon);box-shadow:0 6px 20px rgba(0,234,255,0.06)}
-    .container{width:94%;max-width:1300px;margin:18px auto}
-    /* dashboard grid */
-    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
-    .card{grid-column:span 3;background:var(--card);padding:16px;border-radius:var(--radius);box-shadow:0 10px 30px rgba(0,0,0,0.6)}
-    .card .title{color:var(--muted);font-size:0.85rem}
-    .card .value{font-weight:800;font-size:clamp(18px,2.8vw,28px);margin-top:8px}
-    /* wide sections */
-    .section{grid-column:span 8;background:var(--card);padding:16px;border-radius:var(--radius)}
-    .side{grid-column:span 4;background:var(--card);padding:16px;border-radius:var(--radius)}
-    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-    .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 10px;border-radius:10px;cursor:pointer}
-    .btn.primary{background:var(--neon);color:#001;box-shadow:0 8px 28px rgba(0,234,255,0.06)}
-    .canvas-wrap{height:360px;border-radius:10px;overflow:hidden;position:relative;background:linear-gradient(180deg, rgba(255,255,255,0.008), transparent)}
-    #liveIndicator{position:absolute;left:12px;top:12px;z-index:12;background:rgba(0,0,0,0.6);color:var(--neon);padding:6px 10px;border-radius:10px;font-weight:700}
-    .footer{padding:22px;text-align:center;color:var(--muted);font-size:0.85rem;margin-top:18px}
-    .alert{position:fixed;right:14px;top:14px;padding:12px 14px;border-radius:10px;background:#111;z-index:9999;display:none}
-    /* responsive rules */
-    @media (max-width:1100px){
-      .card{grid-column:span 6}
-      .section{grid-column:span 12}
-      .side{grid-column:span 12}
-      .canvas-wrap{height:320px}
-    }
-    @media (max-width:700px){
-      .brand h1{font-size:18px}
-      .grid{gap:12px}
-      .card{grid-column:span 12}
-    }
-    @media (prefers-reduced-motion: reduce){*{transition:none!important}}
-  </style>
+<style>
+:root{ --bg:#050505; --card:rgba(255,255,255,0.04); --neon:#00eaff; --accent:#00ff88; --muted:#9aa3b2 }
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:#fff}
+header{padding:36px 20px;text-align:center;color:var(--neon);font-weight:800;font-size:2.4rem;text-shadow:0 0 20px rgba(0,234,255,0.12)}
+.container{width:92%;max-width:1400px;margin:0 auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:28px}
+.card{background:var(--card);padding:22px;border-radius:16px;backdrop-filter:blur(8px);box-shadow:0 6px 30px rgba(0,0,0,0.6);transition:transform .26s}
+.card:hover{transform:translateY(-6px)}
+.card h4{margin:0;font-size:0.95rem;color:var(--muted)}
+.card .value{margin-top:10px;font-size:1.9rem;font-weight:800}
+.row{display:flex;gap:20px;align-items:stretch}
+.left{flex:2}
+.right{flex:1}
+.section{background:var(--card);padding:18px;border-radius:14px;margin-bottom:20px}
+.canvas-wrap{height:340px}
+.controls{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer}
+.btn.primary{background:var(--neon);color:#001;box-shadow:0 6px 18px rgba(0,234,255,0.08)}
+#predictionBox{border-left:4px solid var(--accent)}
+.alert{position:fixed;right:18px;top:18px;padding:14px 18px;border-radius:10px;background:#111;box-shadow:0 8px 30px rgba(0,0,0,0.6);z-index:9999;display:none}
+.status-dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px}
+.green{background:#19d37c}
+.yellow{background:#ffd166}
+.red{background:#ff4d6d}
+.purple{background:#b84cff}
+.footer{padding:22px;text-align:center;color:var(--muted)}
+#particles-js{position:fixed;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.12}
+.content{position:relative;z-index:1;padding-bottom:60px}
+.controls .small{font-size:0.9rem;color:var(--muted);margin-right:6px}
+.legend-row{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.range-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;color:#fff;cursor:pointer}
+.reset-row{display:flex;gap:8px;align-items:center}
+/* disable any accidental text-decoration on legends or buttons */
+*{text-decoration:none}
+</style>
 </head>
 <body>
+<header>ARTIFEX AQI - Plan Smarter, Breathe Safer</header>
+<div id="particles-js"></div>
+<div class="container content">
 
-  <!-- topbar (compact & pro) -->
-  <div class="topbar">
-    <div class="brand">
-      <div class="logo">ART</div>
-      <div>
-        <h1>ARTIFEX AQI — YOUR AIR, YOUR ACTION</h1>
-        <div style="color:var(--muted);font-size:0.85rem;margin-top:4px">Real-time Air Quality Intelligence</div>
-      </div>
+  <div class="cards">
+    <div class="card">
+      <h4>Device</h4>
+      <div class="value"><span id="deviceId">esp32-001</span> <small style="opacity:.6">•</small> <span id="connStatusText">Connecting...</span></div>
+      <div style="margin-top:10px"><span id="connDot" class="status-dot yellow"></span> <small id="lastSeen">Last update: --</small></div>
     </div>
-
-    <div class="nav">
-      <a class="active" href="#">Dashboard</a>
-      <a href="#">History</a>
-      <a href="#" id="shareBtn">Share</a>
-    </div>
+    <div class="card"><h4>AQI Status</h4><div id="statusCard" class="value">--</div></div>
+    <div class="card"><h4>Temperature</h4><div id="tempCard" class="value">-- °C</div></div>
+    <div class="card"><h4>Humidity</h4><div id="humCard" class="value">-- %</div></div>
+    <div class="card"><h4>Gas PPM</h4><div id="ppmCard" class="value">--</div></div>
   </div>
 
-  <div class="container">
-    <div class="grid" style="margin-bottom:16px">
-      <div class="card">
-        <div class="title">Device</div>
-        <div class="value"><span id="deviceId">AIR-SENSE-PRO</span> · <small id="connStatusText">Connecting...</small></div>
-        <div style="margin-top:8px;color:var(--muted)"><span id="connDot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffd166;margin-right:8px"></span><span id="lastSeen">Last update: --</span></div>
-      </div>
+  <div class="row">
+    <div class="left">
 
-      <div class="card">
-        <div class="title">AQI Status</div>
-        <div id="statusCard" class="value">--</div>
-      </div>
-
-      <div class="card">
-        <div class="title">Temperature</div>
-        <div id="tempCard" class="value">-- °C</div>
-      </div>
-
-      <div class="card">
-        <div class="title">Humidity</div>
-        <div id="humCard" class="value">-- %</div>
-      </div>
-    </div>
-
-    <!-- main row: charts + side -->
-    <div class="grid" style="align-items:start">
       <div class="section">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <h3 style="margin:0">Live Trends</h3>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div>
             <button class="btn" id="btnPPM">PPM</button>
             <button class="btn" id="btnTemp">Temp</button>
             <button class="btn" id="btnHum">Hum</button>
@@ -130,364 +83,275 @@
             <button class="btn primary" id="downloadCsv">Download CSV</button>
           </div>
         </div>
-
-        <div class="canvas-wrap">
-          <div id="liveIndicator">Live: PPM</div>
-          <canvas id="liveChart"></canvas>
-        </div>
+        <div class="canvas-wrap"><canvas id="liveChart"></canvas></div>
       </div>
 
-      <div class="side">
-        <div style="margin-bottom:12px">
-          <h3 style="margin:0 0 8px 0">Prediction & Advice</h3>
-          <div id="predictionText" style="color:var(--muted)">Waiting for data…</div>
-        </div>
-
-        <div style="margin-bottom:12px">
-          <h4 style="margin:0 0 8px 0">Alerts</h4>
-          <div><label><input type="checkbox" id="enableVoice" checked/> Enable voice</label></div>
-          <div style="margin-top:8px"><label><input type="checkbox" id="enableOnScreen" checked/> On-screen popups</label></div>
-        </div>
-
-        <div>
-          <h4 style="margin:0 0 8px 0">Quick Health Recommendations</h4>
-          <ul id="healthList" style="margin:0;padding-left:18px;color:var(--muted)"></ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- historical section -->
-    <div class="section" style="margin-top:14px">
-      <h3 style="margin-top:0">Historical Data</h3>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px">
-        <div style="display:flex;gap:10px;align-items:center">
-          <div style="position:relative">
-            <button id="rangeDropdownBtn" class="btn primary">▼ Select Range</button>
-            <div id="rangeDropdown" style="display:none;position:absolute;left:0;top:44px;background:var(--glass);padding:10px;border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,0.5)">
-              <div class="dropdown-item" data-range="today">Today</div>
-              <div class="dropdown-item" data-range="yesterday">Yesterday</div>
-              <div class="dropdown-item" data-range="3days">Last 3 days</div>
-              <div class="dropdown-item" data-range="7days">Last 7 days</div>
-              <div class="dropdown-item" data-range="24h">Last 24 hours</div>
-              <div style="height:8px"></div>
-              <div><input id="customStart" placeholder="Start (YYYY-MM-DD HH:MM)" style="padding:6px;border-radius:8px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.04);color:#fff" /></div>
-              <div style="margin-top:8px"><input id="customEnd" placeholder="End (YYYY-MM-DD HH:MM)" style="padding:6px;border-radius:8px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.04);color:#fff" /></div>
-              <div style="display:flex;gap:8px;margin-top:10px"><button class="btn" id="applyCustomRange">Apply</button><button class="btn" id="cancelCustomRange">Cancel</button></div>
-            </div>
+      <div class="section">
+        <h3 style="margin-top:0">Historical Data</h3>
+        <div class="controls">
+          <div class="legend-row">
+            <button class="range-btn" onclick="setRange('today')">Today</button>
+            <button class="range-btn" onclick="setRange('yesterday')">Yesterday</button>
+            <button class="range-btn" onclick="setRange('3days')">Last 3 days</button>
+            <select id="histRange" class="btn" style="margin-left:10px">
+              <option value="24">Last 24 hours</option>
+              <option value="168">Last 7 days</option>
+            </select>
+            <button class="btn" id="loadHistory">Load</button>
           </div>
-
-          <div id="histMetricControls" style="display:flex;gap:8px;align-items:center"></div>
+          <div class="reset-row" style="margin-top:8px">
+            <button class="btn" id="zoomInBtn">Zoom In</button>
+            <button class="btn" id="zoomOutBtn">Zoom Out</button>
+            <button class="btn" id="resetZoomBtn">Reset Zoom</button>
+          </div>
         </div>
-
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="btn" id="zoomInBtn">Zoom In</button>
-          <button class="btn" id="zoomOutBtn">Zoom Out</button>
-          <button class="btn" id="resetZoomBtn">Reset Zoom</button>
-        </div>
+        <div class="canvas-wrap"><canvas id="histChart"></canvas></div>
       </div>
 
-      <div class="canvas-wrap"><canvas id="histChart"></canvas></div>
     </div>
 
-    <div class="footer">© 2025 — ARTIFEX AQI</div>
+    <div class="right">
+      <div id="predictionBox" class="section">
+        <h3 style="margin:0 0 10px 0">Prediction & Advice</h3>
+        <div id="predictionText">Waiting for data…</div>
+        <div style="margin-top:14px;color:var(--muted);font-size:.9rem">Health advice will appear here based on forecasted AQI.</div>
+      </div>
+
+      <div class="section">
+        <h3 style="margin:0 0 10px 0">Alerts</h3>
+        <div><label><input type="checkbox" id="enableVoice" checked/> Enable voice alerts</label></div>
+        <div style="margin-top:8px"><label><input type="checkbox" id="enableOnScreen" checked/> On-screen popups</label></div>
+      </div>
+
+      <div class="section">
+        <h3 style="margin:0 0 10px 0">Quick Health Recommendations</h3>
+        <ul id="healthList" style="margin:0;padding-left:18px;color:var(--muted)"></ul>
+      </div>
+    </div>
   </div>
 
-  <div class="alert" id="alertBox"></div>
+</div>
+
+<div class="alert" id="alertBox"></div>
+<div class="footer">© 2025 — ARTIFEX - RISHI SAVANI</div>
 
 <script>
-/* ================== USER ACTION: REPLACE WITH YOUR FIREBASE CONFIG ================== */
+// ---------------- FIREBASE CONFIG (replace with your project's web config) ----------------
 const firebaseConfig = {
-  apiKey: "AIzaSyDExWY6TkAItsbj7bG5KlGy4Ehvn21Qojw",
+   apiKey: "AIzaSyDExWY6TkAItsbj7bG5KlGy4Ehvn21Qojw",
   authDomain: "esp32-airquality-monitor.firebaseapp.com",
   databaseURL: "https://esp32-airquality-monitor-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "esp32-airquality-monitor",
   storageBucket: "esp32-airquality-monitor.appspot.com",
   messagingSenderId: "793658380467",
   appId: "1:793658380467:web:5c84e543afa345c13520c6"
-
 };
+
 firebase.initializeApp(firebaseConfig);
+const DEVICE_ID = 'esp32-001';
+const REF = `devices/${DEVICE_ID}/readings`;
 
-/* ================== SETTINGS ================== */
-const DEVICE_ID = 'AIR-SENSE-PRO';                 // EXACT casing must match your DB key
-const REF = 'devices/' + DEVICE_ID + '/readings'; // do NOT toLowerCase unless you changed DB keys
+// Quick debug (comment out in production)
+console.log('Firebase initialized (compat)');
 
-/* ================== Utilities ================== */
-function showAlert(msg, color){
-  const el = document.getElementById('alertBox'); el.innerText = msg; el.style.display = 'block'; el.style.borderLeft = color?('6px solid '+color):''; setTimeout(()=>el.style.display='none',6000);
+// ---------------- UI helpers ----------------
+function showAlert(msg, color) {
+  const el = document.getElementById('alertBox');
+  el.innerText = msg; el.style.display = 'block';
+  el.style.borderLeft = color ? `6px solid ${color}` : '';
+  setTimeout(() => el.style.display = 'none', 6000);
 }
 function speak(text){ if(!document.getElementById('enableVoice').checked) return; try{ speechSynthesis.cancel(); speechSynthesis.speak(new SpeechSynthesisUtterance(text)); }catch(e){} }
 
-/* robust timestamp parser: accepts several key formats commonly produced by microcontrollers */
-function parseTimestampKey(key){
-  if(!key) return NaN;
-  // replace underscores with ':' and normalize spaces
-  let s = String(key).trim();
-  s = s.replace(/_/g,':');      // 2025-01-01_12:00:00 -> 2025-01-01:12:00 (we fix below)
-  // try several replacements to get a parseable ISO-like string
-  // patterns we expect: "YYYY-MM-DDTHH:MM:SS" or "YYYY-MM-DD HH:MM:SS" or "YYYY-MM-DD T HH:MM:SS" or "YYYY-MM-DD_HH:MM:SS"
-  s = s.replace(/\s+T\s+/,'T');        // " T " -> "T"
-  s = s.replace(/\s+/,'T');            // " " -> "T"
-  // if still contains ':' twice in date (from underscore replacement), convert first colon to 'T'
-  // e.g. 2025-01-01:12:00:00 -> 2025-01-01T12:00:00
-  const parts = s.split(':');
-  if(parts.length > 2 && parts[0].indexOf('-')!==-1 && parts[0].indexOf('T')===-1){
-    // replace first ':' after date with 'T'
-    s = s.replace(/:/, 'T');
-  }
-  const t = Date.parse(s);
-  return isNaN(t) ? NaN : t;
-}
+// ---------------- State ----------------
+let liveHistory = [];
+let lastTimestamp = null;
+let connected = false;
+let selectedRangeMode = null; // 'today' | 'yesterday' | '3days'
 
-/* ================== State ================== */
-let liveHistory = []; let lastTimestamp = null; let connected = false; let currentHistMetric = 'ppm';
-
-/* ================== Charts ================== */
-
-
-/* ================== LIVE CHART INIT (Mandatory!) ================== */
+// ---------------- Charts Setup ----------------
 const liveCtx = document.getElementById('liveChart').getContext('2d');
-
 const liveChart = new Chart(liveCtx, {
-  type:'line',
-  data:{
-    labels:[],
-    datasets:[
-      { label:'Gas PPM', data:[], borderColor:'#00eaff', tension:0.3, pointRadius:2, borderWidth:2 },
-      { label:'Temperature °C', data:[], borderColor:'#ff9800', tension:0.3, pointRadius:2, borderWidth:2, hidden:true },
-      { label:'Humidity %', data:[], borderColor:'#00ff88', tension:0.3, pointRadius:2, borderWidth:2, hidden:true }
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [
+      { label: 'Gas PPM', data: [], borderColor: '#00eaff', tension: 0.3, pointRadius: 2 },
+      { label: 'Temperature °C', data: [], borderColor: '#ff9800', tension: 0.3, pointRadius: 2, hidden: true },
+      { label: 'Humidity %', data: [], borderColor: '#00ff88', tension: 0.3, pointRadius: 2, hidden: true }
     ]
   },
-  options:{
-    responsive:true,
-    maintainAspectRatio:false,
-    plugins:{ legend:{display:false}},
-    scales:{
-      x:{ ticks:{color:'#fff'} },
-      y:{ ticks:{color:'#fff'} }
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } }, // hide default legend to avoid strike-through
+    scales: { x: { ticks: { color: '#fff' } }, y: { ticks: { color: '#fff' } } }
+  }
+});
+
+const histCtx = document.getElementById('histChart').getContext('2d');
+const histChart = new Chart(histCtx, {
+  type: 'line',
+  data: { labels: [], datasets: [{ label: 'AQI (PPM)', data: [], borderColor: '#b84cff', tension: 0.25, pointRadius: 2 }] },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      zoom: {
+        pan: { enabled: true, mode: 'x', modifierKey: 'ctrl' },
+        zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }
+      }
+    },
+    scales: {
+      x: { ticks: { color: '#fff', autoSkip: true, maxTicksLimit: 8 } },
+      y: { ticks: { color: '#fff' } }
     }
   }
 });
 
+// Programmatic zoom in/out helpers for histChart (fallback if plugin.zoom API exists)
+function zoomInHist(){ try{ histChart.zoom(1.2); }catch(e){ tryAdjustWindow(0.5); } }
+function zoomOutHist(){ try{ histChart.zoom(0.8); }catch(e){ tryAdjustWindow(2); } }
+function resetZoomHist(){ try{ histChart.resetZoom(); }catch(e){ tryAdjustWindow(null); } }
 
-/* ================== AQI meta ================== */
+// Fallback: simple window adjustment by index
+function tryAdjustWindow(factor){
+  const len = histChart.data.labels.length; if(len===0) return;
+  if(factor===null){ // reset
+    histChart.options.scales.x.min = undefined; histChart.options.scales.x.max = undefined; histChart.update(); return;
+  }
+  const currVisible = Math.min(50, len);
+  let newVisible = Math.max(5, Math.floor(currVisible * factor));
+  const start = Math.max(0, len - newVisible);
+  histChart.options.scales.x.min = start; histChart.options.scales.x.max = len - 1; histChart.update();
+}
+
+// ---------------- AQI color logic and health advice ----------------
 function aqiMeta(ppm){
   ppm = Number(ppm) || 0;
-  if(ppm < 80) return {label:'Good', color:'#19d37c', health:'Low risk. Normal activities.'};
-  if(ppm < 150) return {label:'Moderate', color:'#ffd166', health:'Reduce prolonged outdoor exertion.'};
-  if(ppm < 250) return {label:'Unhealthy', color:'#ff4d6d', health:'Avoid long outdoor activity.'};
-  return {label:'Hazardous', color:'#b84cff', health:'Stay indoors; use masks/air purifiers.'};
+  if(ppm < 80) return { label: 'Good', color: '#19d37c', health: 'Low risk. Normal activities.' };
+  if(ppm < 150) return { label: 'Moderate', color: '#ffd166', health: 'Reduce prolonged outdoor exertion.' };
+  if(ppm < 250) return { label: 'Unhealthy', color: '#ff4d6d', health: 'Avoid long outdoor activity.' };
+  return { label: 'Hazardous', color: '#b84cff', health: 'Stay indoors; use masks/air purifiers.' };
 }
 
-/* ================== Update cards ================== */
 function updateCards(obj){
-  document.getElementById('tempCard').innerText = (obj.temperature!==undefined ? obj.temperature : '--') + ' °C';
-  document.getElementById('humCard').innerText = (obj.humidity!==undefined ? obj.humidity : '--') + ' %';
-  document.getElementById('statusCard').innerText = aqiMeta(obj.gas_ppm).label;
-  document.getElementById('statusCard').style.color = aqiMeta(obj.gas_ppm).color;
-  document.getElementById('connStatusText').innerText = connected ? 'Online' : 'Offline';
-  document.getElementById('lastSeen').innerText = 'Last update: ' + (lastTimestamp ? (new Date(parseTimestampKey(lastTimestamp)).toLocaleString()) : '--');
-
-  // health list
-  const list = document.getElementById('healthList');
-  list.innerHTML = '';
+  document.getElementById('tempCard').innerText = obj.temperature + ' °C';
+  document.getElementById('humCard').innerText = obj.humidity + ' %';
+  document.getElementById('ppmCard').innerText = obj.gas_ppm;
   const meta = aqiMeta(obj.gas_ppm);
-  const items = [meta.health,'If you have respiratory conditions, keep inhaler/meds handy.','Consider indoor purifier when AQI is high.'];
-  items.forEach(i=>{ const li=document.createElement('li'); li.innerText = i; list.appendChild(li); });
+  document.getElementById('statusCard').innerText = meta.label;
+  document.getElementById('statusCard').style.color = meta.color;
+  document.getElementById('connStatusText').innerText = connected ? 'Online' : 'Offline';
+  document.getElementById('lastSeen').innerText = 'Last update: ' + new Date().toLocaleString();
+  document.getElementById('connDot').className = 'status-dot ' + (meta.label==='Good'?'green':meta.label==='Moderate'?'yellow':meta.label==='Unhealthy'?'red':'purple');
+
+  // health list based on current PPM range
+  const list = document.getElementById('healthList'); list.innerHTML = '';
+  const items = [meta.health, 'If you have respiratory conditions, keep inhaler/meds handy.', 'Consider indoor purifier when AQI is high.'];
+  items.forEach(i=>{ const li = document.createElement('li'); li.innerText = i; list.appendChild(li); });
 }
 
-/* ================== Firebase listener (realtime) ================== */
-window.addEventListener("load", () => {
+// ---------------- Firebase realtime listening ----------------
+firebase.database().ref(REF).limitToLast(1).on('child_added', snap => {
+  const val = snap.val(); if(!val) return;
+  connected = true; lastTimestamp = snap.key || new Date().toISOString();
+  liveHistory.push({ ts: lastTimestamp, ...val }); if(liveHistory.length > 1000) liveHistory.shift();
 
-  firebase.database().ref(REF).limitToLast(1).on("child_added", snap => {
+  const tLabel = new Date().toLocaleTimeString();
+  liveChart.data.labels.push(tLabel);
+  liveChart.data.datasets[0].data.push(val.gas_ppm);
+  liveChart.data.datasets[1].data.push(val.temperature);
+  liveChart.data.datasets[2].data.push(val.humidity);
+  if(liveChart.data.labels.length > 60){ liveChart.data.labels.shift(); liveChart.data.datasets.forEach(d => d.data.shift()); }
+  liveChart.update();
 
-    // safety: chart not ready
-    if (!liveChart || !liveChart.data || !liveChart.data.labels) return;
+  updateCards(val);
 
-    const val = snap.val();
-    if (!val) return;
+  // prediction based on recent ppm
+  const ppmArr = liveHistory.slice(-30).map(x => parseFloat(x.gas_ppm));
+  runForecast(ppmArr);
 
-    connected = true;
-    lastTimestamp = snap.key || new Date().toISOString();
-
-    liveHistory.push({ ts:lastTimestamp, ...val });
-    if (liveHistory.length > 2000) liveHistory.shift();
-
-    const tLabel = new Date().toLocaleTimeString();
-
-    // safe updates
-    liveChart.data.labels.push(tLabel);
-    liveChart.data.datasets[0].data.push(val.gas_ppm);
-    liveChart.data.datasets[1].data.push(val.temperature);
-    liveChart.data.datasets[2].data.push(val.humidity);
-
-    if (liveChart.data.labels.length > 60) {
-      liveChart.data.labels.shift();
-      liveChart.data.datasets.forEach(d => d.data.shift());
-    }
-
-    liveChart.update();
-    updateCards(val);
-
-    // forecast
-    const ppmArr = liveHistory.slice(-30).map(x => x.gas_ppm);
-    runForecast(ppmArr);
-
-    // alerts
-    const meta = aqiMeta(val.gas_ppm);
-    if (val.gas_ppm > 150) {
-      if (document.getElementById("enableOnScreen").checked)
-        showAlert("High AQI: " + meta.label, meta.color);
-
-      speak("Warning. Air quality is " + meta.label);
-    }
-  });
-
+  // alerts
+  const meta = aqiMeta(val.gas_ppm);
+  if(val.gas_ppm > 150){ if(document.getElementById('enableOnScreen').checked) showAlert('High AQI: '+meta.label, meta.color); speak('Warning. Air quality is '+meta.label); }
 });
 
+// ---------------- Buttons to toggle series ----------------
+document.getElementById('btnPPM').addEventListener('click', ()=>{ setLiveMode('ppm'); });
+document.getElementById('btnTemp').addEventListener('click', ()=>{ setLiveMode('temp'); });
+document.getElementById('btnHum').addEventListener('click', ()=>{ setLiveMode('hum'); });
+document.getElementById('btnAll').addEventListener('click', ()=>{ setLiveMode('all'); });
 
-/* ================== Live toggle buttons ================== */
-const indicator = document.getElementById('liveIndicator');
 function setLiveMode(mode){
-  if(mode === 'ppm'){ liveChart.data.datasets[0].hidden=false; liveChart.data.datasets[1].hidden=true; liveChart.data.datasets[2].hidden=true; indicator.innerText='Live: PPM'; }
-  if(mode === 'temp'){ liveChart.data.datasets[0].hidden=true; liveChart.data.datasets[1].hidden=false; liveChart.data.datasets[2].hidden=true; indicator.innerText='Live: Temperature'; }
-  if(mode === 'hum'){ liveChart.data.datasets[0].hidden=true; liveChart.data.datasets[1].hidden=true; liveChart.data.datasets[2].hidden=false; indicator.innerText='Live: Humidity'; }
-  if(mode === 'all'){ liveChart.data.datasets.forEach(d=>d.hidden=false); indicator.innerText='Live: All Sensors'; }
+  if(mode==='ppm'){ liveChart.data.datasets[0].hidden=false; liveChart.data.datasets[1].hidden=true; liveChart.data.datasets[2].hidden=true; }
+  if(mode==='temp'){ liveChart.data.datasets[0].hidden=true; liveChart.data.datasets[1].hidden=false; liveChart.data.datasets[2].hidden=true; }
+  if(mode==='hum'){ liveChart.data.datasets[0].hidden=true; liveChart.data.datasets[1].hidden=true; liveChart.data.datasets[2].hidden=false; }
+  if(mode==='all'){ liveChart.data.datasets.forEach(d=>d.hidden=false); }
   liveChart.update();
 }
-document.getElementById('btnPPM').addEventListener('click', ()=>setLiveMode('ppm'));
-document.getElementById('btnTemp').addEventListener('click', ()=>setLiveMode('temp'));
-document.getElementById('btnHum').addEventListener('click', ()=>setLiveMode('hum'));
-document.getElementById('btnAll').addEventListener('click', ()=>setLiveMode('all'));
 
-/* ================== CSV download ================== */
-document.getElementById('downloadCsv').addEventListener('click', ()=>{
+// ---------------- CSV Download ----------------
+document.getElementById('downloadCsv').addEventListener('click', downloadCSV);
+function downloadCSV(){
   if(liveHistory.length===0){ showAlert('No data to download'); return; }
   const headers = ['timestamp','temperature_c','humidity_pct','mq135_ppm','aqi_status'];
-  const rows = liveHistory.map(r=>[r.ts||'', r.temperature, r.humidity, r.gas_ppm, r.status||'']);
+  const rows = liveHistory.map(r => [r.ts||'', r.temperature, r.humidity, r.gas_ppm, r.status||'']);
   let csv = headers.join(',') + '\n';
   rows.forEach(r => { csv += r.map(v => ('"' + String(v).replace(/"/g,'""') + '"')).join(',') + '\n'; });
-  const blob = new Blob([csv], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = `${DEVICE_ID}_data.csv`; a.click(); URL.revokeObjectURL(url);
-});
-
-/* ================== Historical loader ================== */
-async function loadRange(startMs, endMs, metric='ppm'){
-  try{
-    const snap = await firebase.database().ref(REF).once('value');
-    const data = snap.val();
-    if(!data){ showAlert('No historical data'); return; }
-    const items = Object.keys(data).map(k => ({ ts: k, ...data[k] }));
-
-    const filtered = items.filter(it => { const ts = parseTimestampKey(it.ts); return !isNaN(ts) && ts >= startMs && ts <= endMs; });
-    filtered.sort((a,b)=>parseTimestampKey(a.ts) - parseTimestampKey(b.ts));
-    histChart.data.labels = filtered.map(x => (new Date(parseTimestampKey(x.ts))).toLocaleString());
-
-    if(metric==='ppm'){ histChart.data.datasets[0].data = filtered.map(x=>parseFloat(x.gas_ppm)); histChart.data.datasets[0].label='AQI (PPM)'; histChart.data.datasets[0].borderColor='#b84cff'; }
-    else if(metric==='temp'){ histChart.data.datasets[0].data = filtered.map(x=>parseFloat(x.temperature)); histChart.data.datasets[0].label='Temperature (°C)'; histChart.data.datasets[0].borderColor='#ff9800'; }
-    else if(metric==='hum'){ histChart.data.datasets[0].data = filtered.map(x=>parseFloat(x.humidity)); histChart.data.datasets[0].label='Humidity (%)'; histChart.data.datasets[0].borderColor='#00ff88'; }
-
-    histChart.update();
-    gsap.fromTo('#histChart',{boxShadow:'0 0 0 rgba(0,0,0,0)'},{boxShadow:'0 0 30px rgba(184,76,255,0.12)',duration:0.45,yoyo:true,repeat:1});
-    // summary avg
-    const avg = filtered.length ? (filtered.reduce((s,x)=>s + (parseFloat(x.gas_ppm)||0),0)/filtered.length) : 0;
-    const meta = aqiMeta(avg);
-    document.getElementById('predictionText').innerHTML = '<strong>Range forecast (avg):</strong><br>Avg AQI (approx): <span style="color:' + meta.color + ';font-weight:800">' + Math.round(avg) + '</span><br><em>' + meta.health + '</em>';
-  }catch(e){ console.error(e); showAlert('Error loading historical: '+e.message); }
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${DEVICE_ID}_data.csv`; a.click(); URL.revokeObjectURL(url);
 }
 
-/* ================== Range dropdown wiring ================== */
-const ddBtn = document.getElementById('rangeDropdownBtn');
-const ddMenu = document.getElementById('rangeDropdown');
-let dropdownOpen=false;
-ddBtn.addEventListener('click', ()=>{ dropdownOpen=!dropdownOpen; if(dropdownOpen){ ddMenu.style.display='block'; ddBtn.innerText='▲ Select Range'; } else { ddMenu.style.display='none'; ddBtn.innerText='▼ Select Range'; }});
-ddMenu.querySelectorAll('.dropdown-item').forEach(it=>it.addEventListener('click', e=>{ const r = e.currentTarget.getAttribute('data-range'); if(r) handleRangeSelection(r); }));
+// ---------------- Historical loader & date-range shortcuts ----------------
+document.getElementById('loadHistory').addEventListener('click', async ()=>{ const hours = parseInt(document.getElementById('histRange').value,10); await loadHistorical(hours); });
 
-document.getElementById('cancelCustomRange').addEventListener('click', ()=>{ document.getElementById('customStart').value=''; document.getElementById('customEnd').value=''; ddMenu.style.display='none'; ddBtn.innerText='▼ Select Range'; });
+function setRange(mode){ selectedRangeMode = mode; if(mode==='today') loadToday(); if(mode==='yesterday') loadYesterday(); if(mode==='3days') loadDays(3); }
 
-function handleRangeSelection(r){
-  ddMenu.style.display='none'; ddBtn.innerText='▼ Select Range';
-  if(r==='today') loadToday(currentHistMetric);
-  if(r==='yesterday') loadYesterday(currentHistMetric);
-  if(r==='3days') loadDays(3,currentHistMetric);
-  if(r==='7days') loadDays(7,currentHistMetric);
-  if(r==='24h') loadLastHours(24,currentHistMetric);
+async function loadToday(){ const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()); await loadRange(start.getTime(), Date.now()); }
+async function loadYesterday(){ const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()-1); const end = new Date(now.getFullYear(), now.getMonth(), now.getDate()); await loadRange(start.getTime(), end.getTime()); }
+async function loadDays(n){ const end = Date.now(); const start = end - n*24*60*60*1000; await loadRange(start, end); }
+
+async function loadHistorical(hours){ const cutoff = Date.now() - hours*60*60*1000; await loadRange(cutoff, Date.now()); }
+
+async function loadRange(startMs, endMs){
+  const snap = await firebase.database().ref(REF).once('value');
+  const data = snap.val(); if(!data){ showAlert('No historical data'); return; }
+  const items = Object.keys(data).map(k => ({ ts: k, ...data[k] }));
+  const filtered = items.filter(it => { const ts = Date.parse(it.ts.replace(/_/g,':').replace('T',' ')); return !isNaN(ts) && ts>=startMs && ts<=endMs; });
+  filtered.sort((a,b)=> Date.parse(a.ts) - Date.parse(b.ts));
+  histChart.data.labels = filtered.map(x => (new Date(x.ts.replace(/_/g,':').replace('T',' '))).toLocaleString());
+  histChart.data.datasets[0].data = filtered.map(x => parseFloat(x.gas_ppm));
+  histChart.update();
+  showAlert('Loaded ' + filtered.length + ' points');
 }
 
-flatpickr('#customStart',{enableTime:true,dateFormat:'Y-m-d H:i'});
-flatpickr('#customEnd',{enableTime:true,dateFormat:'Y-m-d H:i'});
-
-document.getElementById('applyCustomRange').addEventListener('click', ()=>{
-  const s=document.getElementById('customStart').value; const e=document.getElementById('customEnd').value;
-  if(!s||!e){ showAlert('Please set start and end'); return; }
-  const startMs = Date.parse(s.replace(' ','T')); const endMs = Date.parse(e.replace(' ','T'));
-  if(isNaN(startMs)||isNaN(endMs)){ showAlert('Invalid dates'); return; }
-  loadRange(startMs,endMs,currentHistMetric);
-});
-
-/* ================== hist metric controls ================== */
-const histControls = document.getElementById('histMetricControls');
-['AQI','Temperature','Humidity'].forEach((label,idx)=>{
-  const btn = document.createElement('button'); btn.className='btn'; btn.innerText = label;
-  btn.onclick = ()=>{ currentHistMetric = (idx===0?'ppm':(idx===1?'temp':'hum')); loadLastHours(24,currentHistMetric); };
-  histControls.appendChild(btn);
-});
-
-/* ================== helper loads ================== */
-async function loadToday(metric){ const now=new Date(); const start=new Date(now.getFullYear(),now.getMonth(),now.getDate()); await loadRange(start.getTime(), Date.now(), metric); }
-async function loadYesterday(metric){ const now=new Date(); const start=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1); const end=new Date(now.getFullYear(),now.getMonth(),now.getDate()); await loadRange(start.getTime(), end.getTime(), metric); }
-async function loadDays(n,metric){ const end=Date.now(); const start=end - n*24*60*60*1000; await loadRange(start,end,metric); }
-async function loadLastHours(h,metric){ const cutoff = Date.now() - h*60*60*1000; await loadRange(cutoff, Date.now(), metric); }
-
-/* ================== zoom controls ================== */
-function tryZoom(fn, arg){ try{ if(histChart && typeof histChart[fn]==='function') histChart[fn](arg); else showAlert('Zoom not available'); }catch(e){ showAlert('Zoom failed'); } }
-document.getElementById('zoomInBtn').addEventListener('click', ()=>tryZoom('zoom',1.2));
-document.getElementById('zoomOutBtn').addEventListener('click', ()=>tryZoom('zoom',0.8));
-document.getElementById('resetZoomBtn').addEventListener('click', ()=>tryZoom('resetZoom'));
-
-/* ================== simple linear forecast ================== */
-function linearRegressionPredict(arr,forwardSteps=6){
-  const N = Math.min(20, arr.length); if(N<3) return null;
-  const xs=[], ys=[]; for(let i=0;i<N;i++){ xs.push(i); ys.push(arr[arr.length-N+i]); }
-  const xMean = xs.reduce((a,b)=>a+b,0)/N, yMean = ys.reduce((a,b)=>a+b,0)/N;
-  let num=0,den=0; for(let i=0;i<N;i++){ num+=(xs[i]-xMean)*(ys[i]-yMean); den+=(xs[i]-xMean)*(xs[i]-xMean); }
-  const m = den===0?0:num/den; const c = yMean - m*xMean; const pred = m*(N+forwardSteps)+c; return Math.max(0,Math.round(pred));
+// ---------------- Simple ML Forecast (linear regression) ----------------
+function linearRegressionPredict(arr, forwardSteps=6){
+  const N = Math.min(20, arr.length); if(N<3) return null; const xs = [], ys = []; for(let i=0;i<N;i++){ xs.push(i); ys.push(arr[arr.length-N+i]); }
+  const xMean = xs.reduce((a,b)=>a+b,0)/N, yMean = ys.reduce((a,b)=>a+b,0)/N; let num=0, den=0; for(let i=0;i<N;i++){ num += (xs[i]-xMean)*(ys[i]-yMean); den += (xs[i]-xMean)*(xs[i]-xMean); }
+  const m = den===0?0:num/den; const c = yMean - m*xMean; const nextX = N + forwardSteps; const pred = m*nextX + c; return Math.max(0, Math.round(pred));
 }
-function runForecast(ppmArr){ const pred = linearRegressionPredict(ppmArr,6); if(pred===null) return; const meta = aqiMeta(pred); document.getElementById('predictionText').innerHTML = '<strong>Next ~30-60 min forecast:</strong><br>Predicted AQI (approx): <span style="color:' + meta.color + ';font-weight:800">' + pred + '</span><br><em>' + meta.health + '</em>'; }
+function runForecast(ppmArr){ const pred = linearRegressionPredict(ppmArr, 6); if(pred===null) return; const meta = aqiMeta(pred); document.getElementById('predictionText').innerHTML = `<strong>Next ~30-60 min forecast:</strong><br>Predicted AQI (approx): <span style="color:${meta.color};font-weight:800">${pred}</span><br><em>${meta.health}</em>`; }
 
-/* ================== initial UI + connection detection ================== */
-window.addEventListener("load", () => {
+// ---------------- Zoom controls wiring ----------------
+document.getElementById('zoomInBtn').addEventListener('click', ()=>{ zoomInHist(); });
+document.getElementById('zoomOutBtn').addEventListener('click', ()=>{ zoomOutHist(); });
+document.getElementById('resetZoomBtn').addEventListener('click', ()=>{ resetZoomHist(); });
 
-    // Animations
-    gsap.from('.card', {
-        y: 12,
-        opacity: 0,
-        duration: 0.7,
-        stagger: 0.05
-    });
+// ---------------- Animated devices and initial load ----------------
+particlesJS('particles-js', { particles:{ number:{value:60}, color:{value:'#00eaff'}, opacity:{value:0.6}, size:{value:3}}, interactivity:{detect_on:'canvas'} });
+gsap.from('.card',{y:20,opacity:0,duration:0.8,stagger:0.06});
 
-    // Load default historical data safely (chart now exists)
-    loadLastHours(24, 'ppm');
+// initial historical 24 hours
+loadHistorical(24);
 
-});
+// connection indicator based on lastTimestamp
+setInterval(()=>{ if(!lastTimestamp){ connected=false; setConnection(false); return; } const last = Date.parse(lastTimestamp.replace(/_/g,':').replace('T',' ')); if(isNaN(last)){ setConnection(false); return; } const diff = Date.now() - last; setConnection(diff < 120000); }, 3000);
 
-
-setInterval(()=> {
-  if(!lastTimestamp){ connected=false; setConnection(false); return; }
-  const last = parseTimestampKey(lastTimestamp);
-  if(isNaN(last)){ setConnection(false); return; }
-  const diff = Date.now() - last;
-  setConnection(diff < 120000);
-},3000);
-
-function setConnection(online){ connected=online; document.getElementById('connStatusText').innerText = online ? 'Online' : 'Offline'; const dot = document.getElementById('connDot'); if(dot) dot.style.background = online ? '#19d37c' : '#ffd166'; }
+function setConnection(online){ connected = online; document.getElementById('connStatusText').innerText = online?'Online':'Offline'; document.getElementById('connDot').className = 'status-dot ' + (online?'green':'yellow'); }
 
 </script>
 </body>
 </html>
-
-
-
-
 
