@@ -153,11 +153,11 @@ header{padding:28px 16px;text-align:center;color:var(--neon);font-weight:800;fon
 </div>
 
 <div class="alert" id="alertBox"></div>
-<div class="footer">© 2025 — Premium AQI Dashboard</div>
+<div class="footer">© 2025 — ARTIFEX AQI</div>
 
 <script>
 /* ---------------- FIREBASE CONFIG ----------------
-   Replace placeholders with your project's web config. Keep this file using compat SDK. */
+   Replace placeholders with your project's web config. */
 const firebaseConfig = {
   apiKey: "AIzaSyDExWY6TkAItsbj7bG5KlGy4Ehvn21Qojw",
   authDomain: "esp32-airquality-monitor.firebaseapp.com",
@@ -174,11 +174,24 @@ const DEVICE_ID = 'AIR-SENSE-PRO';
 const REF = `devices/${DEVICE_ID.toLowerCase()}/readings`;
 
 /* ---------------- Utilities ---------------- */
-function showAlert(msg, color){ const el = document.getElementById('alertBox'); el.innerText = msg; el.style.display='block'; el.style.borderLeft = color?`6px solid ${color}`:''; setTimeout(()=>el.style.display='none',6000); }
-function speak(text){ if(!document.getElementById('enableVoice').checked) return; try{ speechSynthesis.cancel(); speechSynthesis.speak(new SpeechSynthesisUtterance(text)); }catch(e){} }
+function showAlert(msg, color){
+  const el = document.getElementById('alertBox');
+  el.innerText = msg;
+  el.style.display = 'block';
+  el.style.borderLeft = color ? `6px solid ${color}` : '';
+  setTimeout(()=> el.style.display = 'none', 6000);
+}
+function speak(text){
+  if(!document.getElementById('enableVoice').checked) return;
+  try { speechSynthesis.cancel(); speechSynthesis.speak(new SpeechSynthesisUtterance(text)); }
+  catch(e){ /* ignore */ }
+}
 
 /* ---------------- State ---------------- */
-let liveHistory = []; let lastTimestamp = null; let connected = false; let currentHistMetric = 'ppm';
+let liveHistory = [];
+let lastTimestamp = null;
+let connected = false;
+let currentHistMetric = 'ppm';
 
 /* ---------------- Charts setup ---------------- */
 const liveCtx = document.getElementById('liveChart').getContext('2d');
@@ -197,76 +210,222 @@ const histChart = new Chart(histCtx, {
 });
 
 /* ---------------- AQI color + health ---------------- */
-function aqiMeta(ppm){ ppm = Number(ppm)||0; if(ppm<80) return {label:'Good', color:'#19d37c', health:'Low risk. Normal activities.'}; if(ppm<150) return {label:'Moderate', color:'#ffd166', health:'Reduce prolonged outdoor exertion.'}; if(ppm<250) return {label:'Unhealthy', color:'#ff4d6d', health:'Avoid long outdoor activity.'}; return {label:'Hazardous', color:'#b84cff', health:'Stay indoors; use masks/air purifiers.'}; }
+function aqiMeta(ppm){
+  ppm = Number(ppm) || 0;
+  if(ppm < 80) return {label:'Good', color:'#19d37c', health:'Low risk. Normal activities.'};
+  if(ppm < 150) return {label:'Moderate', color:'#ffd166', health:'Reduce prolonged outdoor exertion.'};
+  if(ppm < 250) return {label:'Unhealthy', color:'#ff4d6d', health:'Avoid long outdoor activity.'};
+  return {label:'Hazardous', color:'#b84cff', health:'Stay indoors; use masks/air purifiers.'};
+}
 
-function updateCards(obj){ document.getElementById('tempCard').innerText = obj.temperature+' °C'; document.getElementById('humCard').innerText = obj.humidity+' %'; document.getElementById('statusCard').innerText = aqiMeta(obj.gas_ppm).label; document.getElementById('statusCard').style.color = aqiMeta(obj.gas_ppm).color;const ppmCard = document.getElementById('ppmCard');
-if (ppmCard) ppmCard.remove();
- // keep simple
- document.getElementById('connStatusText').innerText = connected?'Online':'Offline'; document.getElementById('lastSeen').innerText = 'Last update: '+ new Date().toLocaleString(); const list = document.getElementById('healthList'); list.innerHTML=''; const meta = aqiMeta(obj.gas_ppm); [meta.health,'If you have respiratory conditions, keep inhaler/meds handy.','Consider indoor purifier when AQI is high.'].forEach(i=>{ const li=document.createElement('li'); li.innerText=i; list.appendChild(li); }); }
+function updateCards(obj){
+  document.getElementById('tempCard').innerText = obj.temperature + ' °C';
+  document.getElementById('humCard').innerText = obj.humidity + ' %';
+  document.getElementById('statusCard').innerText = aqiMeta(obj.gas_ppm).label;
+  document.getElementById('statusCard').style.color = aqiMeta(obj.gas_ppm).color;
+
+  // connection info
+  document.getElementById('connStatusText').innerText = connected ? 'Online' : 'Offline';
+  document.getElementById('lastSeen').innerText = 'Last update: ' + new Date().toLocaleString();
+
+  // health list
+  const list = document.getElementById('healthList');
+  list.innerHTML = '';
+  const meta = aqiMeta(obj.gas_ppm);
+  const items = [
+    meta.health,
+    'If you have respiratory conditions, keep inhaler/meds handy.',
+    'Consider indoor purifier when AQI is high.'
+  ];
+  items.forEach(i => { const li = document.createElement('li'); li.innerText = i; list.appendChild(li); });
+}
 
 /* ---------------- Firebase realtime ---------------- */
 firebase.database().ref(REF).limitToLast(1).on('child_added', snap => {
-  const val = snap.val(); if(!val) return; connected=true; lastTimestamp = snap.key || new Date().toISOString(); liveHistory.push({ts:lastTimestamp, ...val}); if(liveHistory.length>2000) liveHistory.shift();
-  const tLabel = new Date().toLocaleTimeString(); liveChart.data.labels.push(tLabel); liveChart.data.datasets[0].data.push(val.gas_ppm); liveChart.data.datasets[1].data.push(val.temperature); liveChart.data.datasets[2].data.push(val.humidity);
-  if(liveChart.data.labels.length>60){ liveChart.data.labels.shift(); liveChart.data.datasets.forEach(d=>d.data.shift()); }
-  liveChart.update(); updateCards(val);
-  const ppmArr = liveHistory.slice(-30).map(x=>parseFloat(x.gas_ppm)); runForecast(ppmArr);
-  const meta = aqiMeta(val.gas_ppm); if(val.gas_ppm>150){ if(document.getElementById('enableOnScreen').checked) showAlert('High AQI: '+meta.label, meta.color); speak('Warning. Air quality is '+meta.label); }
+  const val = snap.val();
+  if(!val) return;
+  connected = true;
+  lastTimestamp = snap.key || new Date().toISOString();
+
+  liveHistory.push({ ts: lastTimestamp, ...val });
+  if(liveHistory.length > 2000) liveHistory.shift();
+
+  const tLabel = new Date().toLocaleTimeString();
+  liveChart.data.labels.push(tLabel);
+  liveChart.data.datasets[0].data.push(val.gas_ppm);
+  liveChart.data.datasets[1].data.push(val.temperature);
+  liveChart.data.datasets[2].data.push(val.humidity);
+
+  if(liveChart.data.labels.length > 60){
+    liveChart.data.labels.shift();
+    liveChart.data.datasets.forEach(d => d.data.shift());
+  }
+  liveChart.update();
+  updateCards(val);
+
+  // run forecast
+  const ppmArr = liveHistory.slice(-30).map(x => parseFloat(x.gas_ppm));
+  runForecast(ppmArr);
+
+  // alerts
+  const meta = aqiMeta(val.gas_ppm);
+  if(val.gas_ppm > 150){
+    if(document.getElementById('enableOnScreen').checked) showAlert('High AQI: ' + meta.label, meta.color);
+    speak('Warning. Air quality is ' + meta.label);
+  }
 });
 
 /* ---------------- Live indicator & toggles ---------------- */
 const indicator = document.getElementById('liveIndicator');
-function setLiveMode(mode){ if(mode==='ppm'){ liveChart.data.datasets[0].hidden=false; liveChart.data.datasets[1].hidden=true; liveChart.data.datasets[2].hidden=true; indicator.innerText='Live: PPM'; }
- if(mode==='temp'){ liveChart.data.datasets[0].hidden=true; liveChart.data.datasets[1].hidden=false; liveChart.data.datasets[2].hidden=true; indicator.innerText='Live: Temperature'; }
- if(mode==='hum'){ liveChart.data.datasets[0].hidden=true; liveChart.data.datasets[1].hidden=true; liveChart.data.datasets[2].hidden=false; indicator.innerText='Live: Humidity'; }
- if(mode==='all'){ liveChart.data.datasets.forEach(d=>d.hidden=false); indicator.innerText='Live: All Sensors'; }
- liveChart.update(); }
-
-document.getElementById('btnPPM').addEventListener('click',()=>setLiveMode('ppm'));
-document.getElementById('btnTemp').addEventListener('click',()=>setLiveMode('temp'));
-document.getElementById('btnHum').addEventListener('click',()=>setLiveMode('hum'));
-document.getElementById('btnAll').addEventListener('click',()=>setLiveMode('all'));
+function setLiveMode(mode){
+  if(mode === 'ppm'){ liveChart.data.datasets[0].hidden = false; liveChart.data.datasets[1].hidden = true; liveChart.data.datasets[2].hidden = true; indicator.innerText = 'Live: PPM'; }
+  if(mode === 'temp'){ liveChart.data.datasets[0].hidden = true; liveChart.data.datasets[1].hidden = false; liveChart.data.datasets[2].hidden = true; indicator.innerText = 'Live: Temperature'; }
+  if(mode === 'hum'){ liveChart.data.datasets[0].hidden = true; liveChart.data.datasets[1].hidden = true; liveChart.data.datasets[2].hidden = false; indicator.innerText = 'Live: Humidity'; }
+  if(mode === 'all'){ liveChart.data.datasets.forEach(d => d.hidden = false); indicator.innerText = 'Live: All Sensors'; }
+  liveChart.update();
+}
+document.getElementById('btnPPM').addEventListener('click', ()=> setLiveMode('ppm'));
+document.getElementById('btnTemp').addEventListener('click', ()=> setLiveMode('temp'));
+document.getElementById('btnHum').addEventListener('click', ()=> setLiveMode('hum'));
+document.getElementById('btnAll').addEventListener('click', ()=> setLiveMode('all'));
 
 /* ---------------- CSV download ---------------- */
-document.getElementById('downloadCsv').addEventListener('click',()=>{
-  if(liveHistory.length===0){ showAlert('No data to download'); return; }
-  const headers = ['timestamp','temperature_c','humidity_pct','mq135_ppm','aqi_status']; const rows = liveHistory.map(r=>[r.ts||'', r.temperature, r.humidity, r.gas_ppm, r.status||'']); let csv = headers.join(',') + '\n'; rows.forEach(r=>{ csv += r.map(v=>('"'+String(v).replace(/"/g,'""')+'"')).join(',') + '\n'; }); const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download = `${DEVICE_ID}_data.csv`; a.click(); URL.revokeObjectURL(url);
+document.getElementById('downloadCsv').addEventListener('click', () => {
+  if(liveHistory.length === 0){ showAlert('No data to download'); return; }
+  const headers = ['timestamp','temperature_c','humidity_pct','mq135_ppm','aqi_status'];
+  const rows = liveHistory.map(r => [r.ts || '', r.temperature, r.humidity, r.gas_ppm, r.status || '']);
+  let csv = headers.join(',') + '\n';
+  rows.forEach(r => {
+    csv += r.map(v => ('"' + String(v).replace(/"/g, '""') + '"')).join(',') + '\n';
+  });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `${DEVICE_ID}_data.csv`; a.click(); URL.revokeObjectURL(url);
 });
 
 /* ---------------- Historical loading + animated highlight ---------------- */
-async function loadRange(startMs,endMs,metric='ppm'){
-  const snap = await firebase.database().ref(REF).once('value'); const data = snap.val(); if(!data){ showAlert('No historical data'); return; }
-  const items = Object.keys(data).map(k=>({ts:k,...data[k]})); const filtered = items.filter(it=>{ const ts = Date.parse(it.ts.replace(/_/g,':').replace('T',' ')); return !isNaN(ts) && ts>=startMs && ts<=endMs; }); filtered.sort((a,b)=>Date.parse(a.ts)-Date.parse(b.ts)); histChart.data.labels = filtered.map(x=> (new Date(x.ts.replace(/_/g,':').replace('T',' '))).toLocaleString()); if(metric==='ppm'){ histChart.data.datasets[0].data = filtered.map(x=>parseFloat(x.gas_ppm)); histChart.data.datasets[0].label='AQI (PPM)'; histChart.data.datasets[0].borderColor='#b84cff'; }
-  if(metric==='temp'){ histChart.data.datasets[0].data = filtered.map(x=>parseFloat(x.temperature)); histChart.data.datasets[0].label='Temperature (°C)'; histChart.data.datasets[0].borderColor='#ff9800'; }
-  if(metric==='hum'){ histChart.data.datasets[0].data = filtered.map(x=>parseFloat(x.humidity)); histChart.data.datasets[0].label='Humidity (%)'; histChart.data.datasets[0].borderColor='#00ff88'; }
-  histChart.update(); // animated highlight
-  gsap.fromTo('#histChart',{boxShadow:'0 0 0 rgba(0,0,0,0)'},{boxShadow:'0 0 30px rgba(184,76,255,0.12)',duration:0.45,yoyo:true,repeat:1});
+async function loadRange(startMs, endMs, metric = 'ppm'){
+  const snap = await firebase.database().ref(REF).once('value');
+  const data = snap.val();
+  if(!data){ showAlert('No historical data'); return; }
+
+  const items = Object.keys(data).map(k => ({ ts: k, ...data[k] }));
+  const filtered = items.filter(it => {
+    const ts = Date.parse(it.ts.replace(/_/g, ':').replace('T', ' '));
+    return !isNaN(ts) && ts >= startMs && ts <= endMs;
+  });
+  filtered.sort((a,b) => Date.parse(a.ts) - Date.parse(b.ts));
+
+  histChart.data.labels = filtered.map(x => (new Date(x.ts.replace(/_/g, ':').replace('T',' '))).toLocaleString());
+
+  if(metric === 'ppm'){
+    histChart.data.datasets[0].data = filtered.map(x => parseFloat(x.gas_ppm));
+    histChart.data.datasets[0].label = 'AQI (PPM)';
+    histChart.data.datasets[0].borderColor = '#b84cff';
+  } else if(metric === 'temp'){
+    histChart.data.datasets[0].data = filtered.map(x => parseFloat(x.temperature));
+    histChart.data.datasets[0].label = 'Temperature (°C)';
+    histChart.data.datasets[0].borderColor = '#ff9800';
+  } else if(metric === 'hum'){
+    histChart.data.datasets[0].data = filtered.map(x => parseFloat(x.humidity));
+    histChart.data.datasets[0].label = 'Humidity (%)';
+    histChart.data.datasets[0].borderColor = '#00ff88';
+  }
+
+  histChart.update();
+  // animated highlight
+  gsap.fromTo('#histChart', { boxShadow: '0 0 0 rgba(0,0,0,0)' }, { boxShadow: '0 0 30px rgba(184,76,255,0.12)', duration: 0.45, yoyo: true, repeat: 1 });
+
   // update health summary (avg ppm)
-  const avg = filtered.length? (filtered.reduce((s,x)=>s + (parseFloat(x.gas_ppm)||0),0)/filtered.length):0; const meta = aqiMeta(avg); document.getElementById('predictionText').innerHTML = `<strong>Range forecast (avg):</strong><br>Avg AQI (approx): <span style="color:${meta.color};font-weight:800">${Math.round(avg)}</span><br><em>${meta.health}</em>`;
+  const avg = filtered.length ? (filtered.reduce((s,x) => s + (parseFloat(x.gas_ppm) || 0), 0) / filtered.length) : 0;
+  const meta = aqiMeta(avg);
+  document.getElementById('predictionText').innerHTML = '<strong>Range forecast (avg):</strong><br>Avg AQI (approx): <span style="color:' + meta.color + ';font-weight:800">' + Math.round(avg) + '</span><br><em>' + meta.health + '</em>';
 }
 
 /* ---------------- Range helpers & dropdown wiring ---------------- */
-const ddBtn = document.getElementById('rangeDropdownBtn'); const ddMenu = document.getElementById('rangeDropdown'); const ddItems = ddMenu.querySelectorAll('.dropdown-item'); let dropdownOpen=false;
+const ddBtn = document.getElementById('rangeDropdownBtn');
+const ddMenu = document.getElementById('rangeDropdown');
+const ddItems = ddMenu.querySelectorAll('.dropdown-item');
+let dropdownOpen = false;
 
-ddBtn.addEventListener('click', ()=>{ dropdownOpen = !dropdownOpen; if(dropdownOpen){ ddBtn.innerText='▲ Select Range'; gsap.to(ddMenu,{height:'auto',duration:0.35,opacity:1,display:'block',ease:'power2.out'}); } else { ddBtn.innerText='▼ Select Range'; gsap.to(ddMenu,{height:0,duration:0.25,opacity:0,display:'none',ease:'power2.in'}); } });
+ddBtn.addEventListener('click', () => {
+  dropdownOpen = !dropdownOpen;
+  if(dropdownOpen){
+    ddBtn.innerText = '▲ Select Range';
+    gsap.to(ddMenu, { height: 'auto', duration: 0.35, opacity: 1, display: 'block', ease: 'power2.out' });
+  } else {
+    ddBtn.innerText = '▼ Select Range';
+    gsap.to(ddMenu, { height: 0, duration: 0.25, opacity: 0, display: 'none', ease: 'power2.in' });
+  }
+});
 
-ddItems.forEach(it=>{ it.addEventListener('click', e=>{ const r = e.currentTarget.getAttribute('data-range'); if(r) { handleRangeSelection(r); } if(e.currentTarget.id==='customRangeToggle'){ document.getElementById('customRangePanel').style.display='block'; } }); });
+ddItems.forEach(it => {
+  it.addEventListener('click', e => {
+    const r = e.currentTarget.getAttribute('data-range');
+    if(r){ handleRangeSelection(r); }
+    if(e.currentTarget.id === 'customRangeToggle'){ document.getElementById('customRangePanel').style.display = 'block'; }
+  });
+});
 
-document.getElementById('cancelCustomRange').addEventListener('click', ()=>{ document.getElementById('customRangePanel').style.display='none'; });
+document.getElementById('cancelCustomRange').addEventListener('click', () => {
+  document.getElementById('customRangePanel').style.display = 'none';
+});
 
-function handleRangeSelection(r){ ddBtn.innerText='▼ Select Range'; gsap.to(ddMenu,{height:0,opacity:0,display:'none',duration:0.2}); dropdownOpen=false; if(r==='today') loadToday(currentHistMetric); if(r==='yesterday') loadYesterday(currentHistMetric); if(r==='3days') loadDays(3,currentHistMetric); if(r==='7days') loadDays(7,currentHistMetric); if(r==='24h') loadLastHours(24,currentHistMetric); }
+function handleRangeSelection(r){
+  ddBtn.innerText = '▼ Select Range';
+  gsap.to(ddMenu, { height: 0, opacity: 0, display: 'none', duration: 0.2 });
+  dropdownOpen = false;
+  if(r === 'today') loadToday(currentHistMetric);
+  if(r === 'yesterday') loadYesterday(currentHistMetric);
+  if(r === '3days') loadDays(3, currentHistMetric);
+  if(r === '7days') loadDays(7, currentHistMetric);
+  if(r === '24h') loadLastHours(24, currentHistMetric);
+}
 
-flatpickr('#customStart',{enableTime:true,dateFormat:'Y-m-d H:i'}); flatpickr('#customEnd',{enableTime:true,dateFormat:'Y-m-d H:i'});
-document.getElementById('applyCustomRange').addEventListener('click', ()=>{ const s=document.getElementById('customStart').value; const e=document.getElementById('customEnd').value; if(!s||!e){ showAlert('Please set start and end'); return; } const startMs = Date.parse(s.replace(' ','T')); const endMs = Date.parse(e.replace(' ','T')); if(isNaN(startMs)||isNaN(endMs)){ showAlert('Invalid dates'); return; } loadRange(startMs,endMs,currentHistMetric); document.getElementById('customRangePanel').style.display='none'; ddBtn.innerText='▼ Select Range'; dropdownOpen=false; gsap.to(ddMenu,{height:0,opacity:0,display:'none',duration:0.2}); });
+flatpickr('#customStart', { enableTime: true, dateFormat: 'Y-m-d H:i' });
+flatpickr('#customEnd', { enableTime: true, dateFormat: 'Y-m-d H:i' });
+
+document.getElementById('applyCustomRange').addEventListener('click', () => {
+  const s = document.getElementById('customStart').value;
+  const e = document.getElementById('customEnd').value;
+  if(!s || !e){ showAlert('Please set start and end'); return; }
+  const startMs = Date.parse(s.replace(' ', 'T'));
+  const endMs = Date.parse(e.replace(' ', 'T'));
+  if(isNaN(startMs) || isNaN(endMs)){ showAlert('Invalid dates'); return; }
+  loadRange(startMs, endMs, currentHistMetric);
+  document.getElementById('customRangePanel').style.display = 'none';
+  ddBtn.innerText = '▼ Select Range';
+  dropdownOpen = false;
+  gsap.to(ddMenu, { height: 0, opacity: 0, display: 'none', duration: 0.2 });
+});
 
 /* ---------------- Historical metric controls (AQI/temp/hum) ---------------- */
-const histControlsContainer = document.getElementById('histMetricControls'); const btnAQI=document.createElement('button'); btnAQI.className='btn'; btnAQI.innerText='AQI'; btnAQI.onclick=()=>{ currentHistMetric='ppm'; loadLastHours(24,'ppm'); }; const btnT=document.createElement('button'); btnT.className='btn'; btnT.innerText='Temperature'; btnT.onclick=()=>{ currentHistMetric='temp'; loadLastHours(24,'temp'); }; const btnH=document.createElement('button'); btnH.className='btn'; btnH.innerText='Humidity'; btnH.onclick=()=>{ currentHistMetric='hum'; loadLastHours(24,'hum'); }; histControlsContainer.appendChild(btnAQI); histControlsContainer.appendChild(btnT); histControlsContainer.appendChild(btnH);
+const histControlsContainer = document.getElementById('histMetricControls');
+
+const btnAQI = document.createElement('button');
+btnAQI.className = 'btn';
+btnAQI.innerText = 'AQI';
+btnAQI.onclick = () => { currentHistMetric = 'ppm'; loadLastHours(24, 'ppm'); };
+
+const btnT = document.createElement('button');
+btnT.className = 'btn';
+btnT.innerText = 'Temperature';
+btnT.onclick = () => { currentHistMetric = 'temp'; loadLastHours(24, 'temp'); };
+
+const btnH = document.createElement('button');
+btnH.className = 'btn';
+btnH.innerText = 'Humidity';
+btnH.onclick = () => { currentHistMetric = 'hum'; loadLastHours(24, 'hum'); };
+
+histControlsContainer.appendChild(btnAQI);
+histControlsContainer.appendChild(btnT);
+histControlsContainer.appendChild(btnH);
 
 /* ---------------- Historical load helpers ---------------- */
-async function loadToday(metric){ const now=new Date(); const start=new Date(now.getFullYear(),now.getMonth(),now.getDate()); await loadRange(start.getTime(), Date.now(), metric); }
-async function loadYesterday(metric){ const now=new Date(); const start=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1); const end=new Date(now.getFullYear(),now.getMonth(),now.getDate()); await loadRange(start.getTime(), end.getTime(), metric); }
-async function loadDays(n,metric){ const end=Date.now(); const start=end - n*24*60*60*1000; await loadRange(start,end,metric); }
-async function loadLastHours(h,metric){ const cutoff = Date.now() - h*60*60*1000; await loadRange(cutoff, Date.now(), metric); }
+async function loadToday(metric){ const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()); await loadRange(start.getTime(), Date.now(), metric); }
+async function loadYesterday(metric){ const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()-1); const end = new Date(now.getFullYear(), now.getMonth(), now.getDate()); await loadRange(start.getTime(), end.getTime(), metric); }
+async function loadDays(n, metric){ const end = Date.now(); const start = end - n*24*60*60*1000; await loadRange(start, end, metric); }
+async function loadLastHours(h, metric){ const cutoff = Date.now() - h*60*60*1000; await loadRange(cutoff, Date.now(), metric); }
 
 /* ---------------- Zoom controls ---------------- */
 function zoomInHist(){ try{ histChart.zoom(1.2); }catch(e){ showAlert('Zoom not available'); } }
@@ -278,20 +437,49 @@ document.getElementById('zoomOutBtn').addEventListener('click', zoomOutHist);
 document.getElementById('resetZoomBtn').addEventListener('click', resetZoomHist);
 
 /* ---------------- Simple ML forecast (linear regression) ---------------- */
-function linearRegressionPredict(arr,forwardSteps=6){ const N=Math.min(20,arr.length); if(N<3) return null; const xs=[], ys=[]; for(let i=0;i<N;i++){ xs.push(i); ys.push(arr[arr.length-N+i]); } const xMean=xs.reduce((a,b)=>a+b,0)/N, yMean=ys.reduce((a,b)=>a+b,0)/N; let num=0, den=0; for(let i=0;i<N;i++){ num+=(xs[i]-xMean)*(ys[i]-yMean); den+=(xs[i]-xMean)*(xs[i]-xMean); } const m=den===0?0:num/den; const c=yMean-m*xMean; const pred=m*(N+forwardSteps)+c; return Math.max(0, Math.round(pred)); }
-function runForecast(ppmArr){ const pred = linearRegressionPredict(ppmArr,6); if(pred===null) return; const meta=aqiMeta(pred); document.getElementById('predictionText').innerHTML = `<strong>Next ~30-60 min forecast:</strong><br>Predicted AQI (approx): <span style="color:${meta.color};font-weight:800">${pred}</span><br><em>${meta.health}</em>`; }
+function linearRegressionPredict(arr, forwardSteps = 6){
+  const N = Math.min(20, arr.length);
+  if(N < 3) return null;
+  const xs = [], ys = [];
+  for(let i = 0; i < N; i++){ xs.push(i); ys.push(arr[arr.length - N + i]); }
+  const xMean = xs.reduce((a,b)=>a+b,0)/N;
+  const yMean = ys.reduce((a,b)=>a+b,0)/N;
+  let num = 0, den = 0;
+  for(let i=0;i<N;i++){ num += (xs[i]-xMean)*(ys[i]-yMean); den += (xs[i]-xMean)*(xs[i]-xMean); }
+  const m = den === 0 ? 0 : num / den;
+  const c = yMean - m * xMean;
+  const pred = m * (N + forwardSteps) + c;
+  return Math.max(0, Math.round(pred));
+}
+function runForecast(ppmArr){
+  const pred = linearRegressionPredict(ppmArr, 6);
+  if(pred === null) return;
+  const meta = aqiMeta(pred);
+  document.getElementById('predictionText').innerHTML = '<strong>Next ~30-60 min forecast:</strong><br>Predicted AQI (approx): <span style="color:' + meta.color + ';font-weight:800">' + pred + '</span><br><em>' + meta.health + '</em>';
+}
 
 /* ---------------- Init UI animation & load defaults ---------------- */
-particlesJS('particles-js',{particles:{number:{value:48},color:{value:'#00eaff'},opacity:{value:0.6},size:{value:2}},interactivity:{detect_on:'canvas'}});
-gsap.from('.card',{y:12,opacity:0,duration:0.7,stagger:0.05});
+particlesJS('particles-js', { particles:{ number:{value:48}, color:{value:'#00eaff'}, opacity:{value:0.6}, size:{value:2} }, interactivity:{ detect_on:'canvas' } });
+gsap.from('.card', { y:12, opacity:0, duration:0.7, stagger:0.05 });
+
 // default load last 24h AQI
-loadLastHours(24,'ppm');
+loadLastHours(24, 'ppm');
 
 /* ---------------- connection indicator ---------------- */
-setInterval(()=>{ if(!lastTimestamp){ connected=false; setConnection(false); return; } const last = Date.parse(lastTimestamp.replace(/_/g,':').replace('T',' ')); if(isNaN(last)){ setConnection(false); return; } const diff = Date.now()-last; setConnection(diff<120000); },3000);
-function setConnection(online){ connected=online; document.getElementById('connStatusText').innerText = online?'Online':'Offline'; document.getElementById('connDot').style.background = online? '#19d37c' : '#ffd166'; }
+setInterval(()=> {
+  if(!lastTimestamp){ connected = false; setConnection(false); return; }
+  const last = Date.parse(lastTimestamp.replace(/_/g, ':').replace('T',' '));
+  if(isNaN(last)){ setConnection(false); return; }
+  const diff = Date.now() - last;
+  setConnection(diff < 120000);
+}, 3000);
 
+function setConnection(online){
+  connected = online;
+  document.getElementById('connStatusText').innerText = online ? 'Online' : 'Offline';
+  const dot = document.getElementById('connDot');
+  if(dot) dot.style.background = online ? '#19d37c' : '#ffd166';
+}
 </script>
 </body>
 </html>
-
