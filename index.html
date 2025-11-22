@@ -199,7 +199,9 @@ const histChart = new Chart(histCtx, {
 /* ---------------- AQI color + health ---------------- */
 function aqiMeta(ppm){ ppm = Number(ppm)||0; if(ppm<80) return {label:'Good', color:'#19d37c', health:'Low risk. Normal activities.'}; if(ppm<150) return {label:'Moderate', color:'#ffd166', health:'Reduce prolonged outdoor exertion.'}; if(ppm<250) return {label:'Unhealthy', color:'#ff4d6d', health:'Avoid long outdoor activity.'}; return {label:'Hazardous', color:'#b84cff', health:'Stay indoors; use masks/air purifiers.'}; }
 
-function updateCards(obj){ document.getElementById('tempCard').innerText = obj.temperature+' °C'; document.getElementById('humCard').innerText = obj.humidity+' %'; document.getElementById('statusCard').innerText = aqiMeta(obj.gas_ppm).label; document.getElementById('statusCard').style.color = aqiMeta(obj.gas_ppm).color; document.getElementById('ppmCard')?.remove?.(); // keep simple
+function updateCards(obj){ document.getElementById('tempCard').innerText = obj.temperature+' °C'; document.getElementById('humCard').innerText = obj.humidity+' %'; document.getElementById('statusCard').innerText = aqiMeta(obj.gas_ppm).label; document.getElementById('statusCard').style.color = aqiMeta(obj.gas_ppm).color;const ppmCard = document.getElementById('ppmCard');
+if (ppmCard) ppmCard.remove();
+ // keep simple
  document.getElementById('connStatusText').innerText = connected?'Online':'Offline'; document.getElementById('lastSeen').innerText = 'Last update: '+ new Date().toLocaleString(); const list = document.getElementById('healthList'); list.innerHTML=''; const meta = aqiMeta(obj.gas_ppm); [meta.health,'If you have respiratory conditions, keep inhaler/meds handy.','Consider indoor purifier when AQI is high.'].forEach(i=>{ const li=document.createElement('li'); li.innerText=i; list.appendChild(li); }); }
 
 /* ---------------- Firebase realtime ---------------- */
@@ -292,3 +294,4 @@ function setConnection(online){ connected=online; document.getElementById('connS
 </script>
 </body>
 </html>
+
