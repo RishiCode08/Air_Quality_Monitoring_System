@@ -245,25 +245,30 @@ let liveHistory = []; let lastTimestamp = null; let connected = false; let curre
 /* ================== Charts ================== */
 
 
-const histCtx = document.getElementById('histChart').getContext('2d');
-const histChart = new Chart(histCtx, {
-  type: 'line',
-  data: { labels: [], datasets: [{ label: 'AQI (PPM)', data: [], borderColor: '#b84cff', tension: 0.25, pointRadius: 2 }] },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      zoom: {
-        pan: { enabled: true, mode: 'x', modifierKey: 'ctrl' },
-        zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }
-      }
-    },
-    scales: {
-      x: { ticks: { color: '#fff', autoSkip: true, maxTicksLimit: 8 } },
-      y: { ticks: { color: '#fff' } }
+/* ================== LIVE CHART INIT (Mandatory!) ================== */
+const liveCtx = document.getElementById('liveChart').getContext('2d');
+
+const liveChart = new Chart(liveCtx, {
+  type:'line',
+  data:{
+    labels:[],
+    datasets:[
+      { label:'Gas PPM', data:[], borderColor:'#00eaff', tension:0.3, pointRadius:2, borderWidth:2 },
+      { label:'Temperature °C', data:[], borderColor:'#ff9800', tension:0.3, pointRadius:2, borderWidth:2, hidden:true },
+      { label:'Humidity %', data:[], borderColor:'#00ff88', tension:0.3, pointRadius:2, borderWidth:2, hidden:true }
+    ]
+  },
+  options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{ legend:{display:false}},
+    scales:{
+      x:{ ticks:{color:'#fff'} },
+      y:{ ticks:{color:'#fff'} }
     }
   }
 });
+
 
 /* ================== AQI meta ================== */
 function aqiMeta(ppm){
@@ -292,44 +297,54 @@ function updateCards(obj){
 }
 
 /* ================== Firebase listener (realtime) ================== */
-try{
-  firebase.database().ref(REF).limitToLast(1).on('child_added', snap => {
-    const val = snap.val(); if(!val) return;
+window.addEventListener("load", () => {
+
+  firebase.database().ref(REF).limitToLast(1).on("child_added", snap => {
+
+    // safety: chart not ready
+    if (!liveChart || !liveChart.data || !liveChart.data.labels) return;
+
+    const val = snap.val();
+    if (!val) return;
+
     connected = true;
     lastTimestamp = snap.key || new Date().toISOString();
 
-    liveHistory.push({ ts: lastTimestamp, ...val });
-    if(liveHistory.length > 2000) liveHistory.shift();
+    liveHistory.push({ ts:lastTimestamp, ...val });
+    if (liveHistory.length > 2000) liveHistory.shift();
 
     const tLabel = new Date().toLocaleTimeString();
+
+    // safe updates
     liveChart.data.labels.push(tLabel);
     liveChart.data.datasets[0].data.push(val.gas_ppm);
     liveChart.data.datasets[1].data.push(val.temperature);
     liveChart.data.datasets[2].data.push(val.humidity);
 
-    if(liveChart.data.labels.length > 60){
+    if (liveChart.data.labels.length > 60) {
       liveChart.data.labels.shift();
       liveChart.data.datasets.forEach(d => d.data.shift());
     }
+
     liveChart.update();
     updateCards(val);
 
     // forecast
-    const ppmArr = liveHistory.slice(-30).map(x => parseFloat(x.gas_ppm));
+    const ppmArr = liveHistory.slice(-30).map(x => x.gas_ppm);
     runForecast(ppmArr);
 
     // alerts
     const meta = aqiMeta(val.gas_ppm);
-    if(val.gas_ppm > 150){
-      if(document.getElementById('enableOnScreen').checked) showAlert('High AQI: ' + meta.label, meta.color);
-      speak('Warning. Air quality is ' + meta.label);
+    if (val.gas_ppm > 150) {
+      if (document.getElementById("enableOnScreen").checked)
+        showAlert("High AQI: " + meta.label, meta.color);
+
+      speak("Warning. Air quality is " + meta.label);
     }
   });
-} catch(e){
-  console.warn('Realtime listener failed, fallback to polling', e);
-  // fallback polling every 15s
-  setInterval(async ()=>{ try{ const snap = await firebase.database().ref(REF).limitToLast(1).once('value'); const data = snap.val(); if(!data) return; const key = Object.keys(data)[0]; const val = data[key]; connected=true; lastTimestamp=key; liveHistory.push({ts:key,...val}); if(liveHistory.length>2000) liveHistory.shift(); const tLabel = new Date().toLocaleTimeString(); liveChart.data.labels.push(tLabel); liveChart.data.datasets[0].data.push(val.gas_ppm); if(liveChart.data.labels.length>60){ liveChart.data.labels.shift(); liveChart.data.datasets.forEach(d=>d.data.shift()); } liveChart.update(); updateCards(val);}catch(e){console.warn(e)} },15000);
-}
+
+});
+
 
 /* ================== Live toggle buttons ================== */
 const indicator = document.getElementById('liveIndicator');
@@ -458,6 +473,7 @@ function setConnection(online){ connected=online; document.getElementById('connS
 </script>
 </body>
 </html>
+
 
 
 
