@@ -171,7 +171,8 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const DEVICE_ID = 'AIR-SENSE-PRO';
-const REF = `devices/${DEVICE_ID.toLowerCase()}/readings`;
+const REF = `devices/${DEVICE_ID}/readings`;
+
 
 /* ---------------- Utilities ---------------- */
 function showAlert(msg, color){
@@ -483,4 +484,5 @@ function setConnection(online){
 </script>
 </body>
 </html>
+
 
