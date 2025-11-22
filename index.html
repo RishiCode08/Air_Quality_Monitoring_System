@@ -248,40 +248,19 @@ let liveHistory = []; let lastTimestamp = null; let connected = false; let curre
 const histCtx = document.getElementById('histChart').getContext('2d');
 const histChart = new Chart(histCtx, {
   type: 'line',
-  data: {
-    labels: [],
-    datasets: [
-      {
-        label: 'AQI (PPM)',
-        data: [],
-        borderColor: '#b84cff',
-        tension: 0.25,
-        pointRadius: 2,
-        borderWidth: 2
-      }
-    ]
-  },
+  data: { labels: [], datasets: [{ label: 'AQI (PPM)', data: [], borderColor: '#b84cff', tension: 0.25, pointRadius: 2 }] },
   options: {
-    responsive: true,
-    maintainAspectRatio: false,
+    responsive: true, maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
       zoom: {
-        pan: { enabled: true, mode: 'x' },
-        zoom: {
-          wheel: { enabled: true },
-          pinch: { enabled: true },
-          mode: 'x'
-        }
+        pan: { enabled: true, mode: 'x', modifierKey: 'ctrl' },
+        zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }
       }
     },
     scales: {
-      x: {
-        ticks: { color: '#fff', autoSkip: true, maxTicksLimit: 8 }
-      },
-      y: {
-        ticks: { color: '#fff' }
-      }
+      x: { ticks: { color: '#fff', autoSkip: true, maxTicksLimit: 8 } },
+      y: { ticks: { color: '#fff' } }
     }
   }
 });
@@ -479,5 +458,6 @@ function setConnection(online){ connected=online; document.getElementById('connS
 </script>
 </body>
 </html>
+
 
 
