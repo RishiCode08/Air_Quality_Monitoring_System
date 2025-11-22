@@ -206,7 +206,7 @@ const liveChart = new Chart(liveCtx, {
 const histCtx = document.getElementById('histChart').getContext('2d');
 const histChart = new Chart(histCtx, {
   type:'line', data:{ labels:[], datasets:[{label:'AQI (PPM)', data:[], borderColor:'#b84cff', tension:0.25, pointRadius:2, borderWidth:2}] },
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, zoom:{ pan:{enabled:true, mode:'x'}, zoom:{wheel:{enabled:true}, pinch:{enabled:true}, mode:'x'} } }, scales:{ x:{ticks:{color:'#fff', autoSkip:true, maxTicksLimit:8}}, y:{ticks:{color:'#fff'}} }
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, zoom:{ pan:{enabled:true, mode:'x'}, zoom:{wheel:{enabled:true}, pinch:{enabled:true}, mode:'x'} } }, scales:{ x:{ticks:{color:'#fff', autoSkip:true, maxTicksLimit:8}}, y:{ticks:{color:'#fff'}} }}
 });
 
 /* ---------------- AQI color + health ---------------- */
@@ -483,3 +483,4 @@ function setConnection(online){
 </script>
 </body>
 </html>
+
