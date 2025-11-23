@@ -3,14 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>ARTIFEX AQI - YOUR AIR, YOUR ACTION</title>
-
-  <!-- PWA / Add to home screen -->
-  <meta name="theme-color" content="#000" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="ARTIFEX AQI" />
-  <link rel="icon" href="data:,">
-  <!-- optional manifest: you can host /manifest.json later for full PWA behavior -->
+  <title>ARTIFEX AQI — YOUR AIR, YOUR ACTION (v2)</title>
 
   <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -20,206 +13,248 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
 
-  <!-- TensorFlow.js (optional LSTM) - will be used only if TF_MODEL_URL set -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
-
   <!-- helpers -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg:#050505; --card:rgba(255,255,255,0.04);
-      --neon:#00eaff; --accent:#00ff88; --muted:#9aa3b2;
-      --cyber-purple:#b84cff; --glass: rgba(255,255,255,0.02);
-      --radius:12px;
-      --gap:14px;
+      --bg:#050505;
+      --panel: rgba(255,255,255,0.03);
+      --neon:#00eaff;
+      --accent:#00ff88;
+      --danger:#ff4d6d;
+      --muted:#9aa3b2;
+      --glass: rgba(255,255,255,0.02);
+      --radius:14px;
+      --card-pad:18px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#040404,#07070a);color:#fff;-webkit-font-smoothing:antialiased}
-    .topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;gap:12px;background:radial-gradient(circle at 0 0, rgba(0,234,255,0.04), transparent 40%);backdrop-filter: blur(6px);border-bottom:1px solid rgba(255,255,255,0.02)}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#00eaff,#00ff88);display:flex;align-items:center;justify-content:center;color:#001;font-weight:900;box-shadow:0 8px 28px rgba(0,234,255,0.06)}
-    .brand .title{font-weight:800;color:var(--neon);font-size:clamp(16px,2.2vw,22px)}
-    .container{width:94%;max-width:1300px;margin:18px auto}
-    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap)}
-    .card{background:var(--card);padding:14px;border-radius:var(--radius);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
-    .small{color:var(--muted);font-size:0.9rem}
-    .title{color:var(--muted);font-size:0.85rem}
-    .value{font-weight:800;font-size:clamp(16px,2.6vw,28px);margin-top:6px}
-    .section{background:var(--card);padding:14px;border-radius:var(--radius)}
-    .canvas-wrap{height:320px;border-radius:10px;overflow:hidden;position:relative;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent)}
-    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-    .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 10px;border-radius:10px;cursor:pointer}
+    body{margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:#fff;-webkit-font-smoothing:antialiased}
+    /* top header */
+    header{
+      text-align:center;padding:28px 12px 20px;
+      font-weight:800;color:var(--neon);
+      font-size:clamp(20px,3.6vw,34px);
+      text-shadow:0 0 30px rgba(0,234,255,0.08);
+      letter-spacing:1px;
+    }
+    .container{width:94%;max-width:1260px;margin:0 auto}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:18px}
+    .card{background:var(--panel);padding:var(--card-pad);border-radius:var(--radius);box-shadow:0 10px 40px rgba(0,0,0,0.6);position:relative;overflow:hidden}
+    .card .title{color:var(--muted);font-size:0.9rem;margin-bottom:6px}
+    .card .value{font-weight:800;font-size:clamp(18px,3vw,28px)}
+    /* top stat cards */
+    .stat{grid-column:span 3}
+    .stat .small{font-size:0.86rem;color:var(--muted)}
+    .status-dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:middle}
+    /* big area */
+    .main{grid-column:span 8}
+    .side{grid-column:span 4;display:flex;flex-direction:column;gap:14px}
+    .canvas-wrap{height:340px;border-radius:12px;overflow:hidden;position:relative;background:linear-gradient(180deg, rgba(255,255,255,0.004), transparent)}
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
     .btn.primary{background:var(--neon);color:#001;box-shadow:0 8px 28px rgba(0,234,255,0.06)}
-    .neon-select{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px;border-radius:8px;color:#fff}
-    .live-indicator{position:absolute;left:12px;top:12px;background:rgba(0,0,0,0.6);padding:6px 10px;border-radius:10px;color:var(--neon);font-weight:700;z-index:20}
-    .prediction-card{display:flex;flex-direction:column;gap:6px}
-    .prediction-score{font-size:1.8rem;font-weight:900}
-    .health-card{padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(184,76,255,0.06), rgba(0,0,0,0.04));}
-    .comparison-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .footer{padding:16px;text-align:center;color:var(--muted);font-size:0.9rem;margin-top:18px}
-
-    @media (max-width:1100px){
-      .grid{grid-template-columns:repeat(6,1fr)}
-      .card{grid-column:span 3}
-      .section{grid-column:span 6}
+    /* 3 highlight cards in side */
+    .neon-card{padding:14px;border-radius:12px;border:2px solid rgba(255,255,255,0.02);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))}
+    .neon-card.highlight{box-shadow:0 0 30px rgba(0,234,255,0.06)}
+    .neon-card .title{font-weight:700}
+    .neon-border{position:absolute;inset:0;border-radius:12px;pointer-events:none;mix-blend-mode:screen}
+    /* histogram / historical */
+    .hist-controls{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+    .range-dropdown{position:relative}
+    .range-select{background:var(--neon);color:#001;padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
+    .menu{position:absolute;left:0;top:42px;background:linear-gradient(180deg, rgba(0,0,0,0.85), rgba(0,0,0,0.92));padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);display:none;min-width:220px;z-index:30}
+    .menu .item{padding:8px;border-radius:8px;color:#fff;cursor:pointer}
+    .menu .item:hover{background:rgba(255,255,255,0.02)}
+    /* custom dropdown look for metric selector */
+    .select{background:var(--panel);padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);color:#fff}
+    /* legend indicator */
+    .legend{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:0.9rem}
+    .legend .swatch{width:14px;height:8px;border-radius:4px;display:inline-block}
+    /* mobile */
+    @media (max-width:1000px){
+      .stat{grid-column:span 6}
+      .main{grid-column:span 12}
+      .side{grid-column:span 12;flex-direction:row;flex-wrap:wrap}
+      .side .neon-card{flex:1;min-width:200px}
     }
-    @media (max-width:700px){
-      .grid{grid-template-columns:repeat(1,1fr)}
-      .card{grid-column:span 1}
-      .section{grid-column:span 1}
-      .canvas-wrap{height:240px}
-      .brand .title{font-size:16px}
+    @media (max-width:640px){
+      header{font-size:20px;padding-bottom:12px}
+      .canvas-wrap{height:220px}
+      .stat{grid-column:span 12}
     }
+    /* neon glows helpers */
+    .glow-good{box-shadow:0 6px 40px rgba(25,211,124,0.08),0 0 18px rgba(25,211,124,0.06)}
+    .glow-moderate{box-shadow:0 6px 40px rgba(255,209,102,0.06),0 0 18px rgba(255,209,102,0.04)}
+    .glow-unhealthy{box-shadow:0 6px 40px rgba(255,77,109,0.06),0 0 18px rgba(255,77,109,0.05)}
+    .glow-hazard{box-shadow:0 6px 40px rgba(184,76,255,0.06),0 0 24px rgba(184,76,255,0.06)}
+    /* small helper */
+    .muted{color:var(--muted);font-size:0.9rem}
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="brand">
-      <div class="logo">ART</div>
-      <div>
-        <div class="title">ARTIFEX AQI — YOUR AIR, YOUR ACTION</div>
-        <div class="small">Real-time Air Intelligence — Responsive, Neon Cyber UI</div>
-      </div>
-    </div>
-    <div>
-      <button class="btn" id="shareBtn">Share</button>
-      <button class="btn" id="installPromptBtn" style="display:none">Install App</button>
-    </div>
-  </div>
+<header>ARTIFEX AQI — YOUR AIR, YOUR ACTION</header>
 
-  <div class="container">
-    <!-- top stat cards -->
-    <div class="grid" style="margin-bottom:12px">
-      <div class="card" style="grid-column:span 3">
-        <div class="title">Device</div>
-        <div class="value"><span id="deviceId">AIR-SENSE-PRO</span> · <small id="connStatus" class="small">Connecting...</small></div>
-        <div style="margin-top:8px" class="small"><span id="connDot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffd166;margin-right:8px"></span><span id="lastSeen">Last: --</span></div>
-      </div>
-
-      <div class="card" style="grid-column:span 3">
-        <div class="title">AQI Status</div>
-        <div id="statusCard" class="value">--</div>
-      </div>
-
-      <div class="card" style="grid-column:span 3">
-        <div class="title">Temperature</div>
-        <div id="tempCard" class="value">-- °C</div>
-      </div>
-
-      <div class="card" style="grid-column:span 3">
-        <div class="title">Humidity</div>
-        <div id="humCard" class="value">-- %</div>
-      </div>
+<div class="container">
+  <div class="grid">
+    <!-- stats -->
+    <div class="card stat">
+      <div class="title">Device</div>
+      <div class="value"><span id="deviceId">AIR-SENSE-PRO</span> · <small id="connStatusText" class="muted">Connecting...</small></div>
+      <div style="margin-top:10px" class="muted"><span id="connDot" class="status-dot" style="background: #ffd166"></span> <span id="lastSeen">Last update: --</span></div>
     </div>
 
-    <!-- main row -->
-    <div class="grid" style="align-items:start;gap:12px">
-      <!-- Live trends -->
-      <div class="section" style="grid-column:span 8">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div class="card stat">
+      <div class="title">AQI Status</div>
+      <div id="statusCard" class="value">--</div>
+      <div class="muted" style="margin-top:8px">Current category</div>
+    </div>
+
+    <div class="card stat">
+      <div class="title">Temperature</div>
+      <div id="tempCard" class="value">-- °C</div>
+      <div class="muted" style="margin-top:8px">Ambient</div>
+    </div>
+
+    <div class="card stat">
+      <div class="title">Humidity</div>
+      <div id="humCard" class="value">-- %</div>
+      <div class="muted" style="margin-top:8px">Relative</div>
+    </div>
+
+    <!-- main charts -->
+    <div class="card main">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
           <h3 style="margin:0">Live Trends</h3>
-          <div class="controls">
-            <button class="btn" id="btnPPM">PPM</button>
-            <button class="btn" id="btnTemp">Temp</button>
-            <button class="btn" id="btnHum">Hum</button>
-            <button class="btn" id="btnAll">Show All</button>
-            <button class="btn primary" id="downloadCsv">Download CSV</button>
-          </div>
+          <div class="muted">Realtime readings (last ~60 samples)</div>
         </div>
-        <div class="canvas-wrap">
-          <div id="liveIndicator" class="live-indicator">Live: PPM</div>
-          <canvas id="liveChart"></canvas>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn" id="btnPPM">PPM</button>
+          <button class="btn" id="btnTemp">Temp</button>
+          <button class="btn" id="btnHum">Hum</button>
+          <button class="btn" id="btnAll">Show All</button>
+          <button class="btn primary" id="downloadCsv">Download CSV</button>
         </div>
       </div>
 
-      <!-- right column: prediction + health -->
-      <div style="grid-column:span 4;display:flex;flex-direction:column;gap:12px">
-        <div class="card prediction-card">
-          <div class="title">1-Hour AQI Forecast</div>
-          <div id="oneHourScore" class="prediction-score">--</div>
-          <div id="oneHourAdvice" class="small">Waiting for data…</div>
-          <div style="margin-top:6px" class="small">Forecast method: <span id="forecastMethod">Linear Regression (fallback)</span></div>
-        </div>
-
-        <div class="card health-card">
-          <div class="title">Health Recommendation (Dynamic)</div>
-          <div id="healthDynamic" style="margin-top:8px">
-            <div style="font-weight:800">--</div>
-            <div class="small" id="healthDetail">Tracking live AQI to provide tailored advice.</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="title">Alerts & Customization</div>
-          <div style="margin-top:8px">
-            <label class="small"><input id="enableOnScreen" type="checkbox" checked/> On-screen alert</label><br>
-            <label class="small"><input id="enableVoice" type="checkbox" checked/> Voice alert</label>
-            <div style="margin-top:8px" class="small">Custom thresholds:</div>
-            <div style="display:flex;gap:8px;margin-top:6px">
-              <input id="threshPPM" type="number" placeholder="PPM" style="padding:6px;border-radius:8px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.04);color:#fff;width:80px"/>
-              <input id="threshTemp" type="number" placeholder="Temp°C" style="padding:6px;border-radius:8px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.04);color:#fff;width:80px"/>
-              <input id="threshHum" type="number" placeholder="Hum%" style="padding:6px;border-radius:8px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.04);color:#fff;width:80px"/>
-            </div>
-            <div style="margin-top:8px"><button class="btn" id="saveThresholds">Save</button></div>
-          </div>
+      <div class="canvas-wrap">
+        <div id="liveIndicator" style="position:absolute;left:14px;top:12px;background:rgba(0,0,0,0.6);padding:6px 10px;border-radius:10px;color:var(--neon);font-weight:700;z-index:10">Live: PPM</div>
+        <canvas id="liveChart"></canvas>
+        <div style="position:absolute;right:12px;bottom:12px;z-index:12" class="legend">
+          <span class="swatch" style="background:#00eaff"></span> PPM
+          <span class="swatch" style="background:#ff9800;margin-left:10px"></span> Temp
+          <span class="swatch" style="background:#00ff88;margin-left:10px"></span> Humidity
         </div>
       </div>
-    </div>
 
-    <!-- historical + comparison -->
-    <div class="section" style="margin-top:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h3 style="margin:0">Historical & Comparison</h3>
-        <div class="comparison-controls">
-          <div>
-            <!-- custom themed dropdown -->
-            <div style="position:relative;display:inline-block">
-              <button id="rangeBtn" class="btn primary">Range: Last 24h ▾</button>
-              <div id="rangeMenu" style="display:none;position:absolute;right:0;top:40px;background:var(--card);padding:8px;border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,0.6);min-width:220px;z-index:60">
-                <div class="small" data-range="24h" style="padding:8px;border-radius:8px;cursor:pointer">Last 24 hours</div>
-                <div class="small" data-range="today" style="padding:8px;border-radius:8px;cursor:pointer">Today (midnight → now)</div>
-                <div class="small" data-range="yesterday" style="padding:8px;border-radius:8px;cursor:pointer">Yesterday</div>
-                <div class="small" data-range="3days" style="padding:8px;border-radius:8px;cursor:pointer">Last 3 days</div>
+      <!-- historical & comparison -->
+      <div style="margin-top:16px">
+        <div class="hist-controls">
+          <div class="range-dropdown">
+            <button id="rangeBtn" class="range-select">Range: Today ▾</button>
+            <div id="rangeMenu" class="menu">
+              <div class="item" data-range="today">Today (midnight → now)</div>
+              <div class="item" data-range="yesterday">Yesterday</div>
+              <div class="item" data-range="3days">Last 3 days</div>
+              <div class="item" data-range="24h">Last 24 hours</div>
+              <div class="item" data-range="7days">Last 7 days</div>
+              <div class="item" id="customRangeItem">Custom range (picker)</div>
+              <div style="height:10px"></div>
+              <div id="customRangePanel" style="display:none">
+                <input id="customStart" placeholder="Start (YYYY-MM-DD HH:MM)" style="width:100%;padding:8px;border-radius:8px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.03);color:#fff" />
                 <div style="height:8px"></div>
-                <div class="small" id="customRangeToggle" style="padding:8px;border-radius:8px;cursor:pointer">Custom range (picker)</div>
-                <div id="customRangePanel" style="display:none;margin-top:8px">
-                  <input id="customStart" placeholder="Start (YYYY-MM-DD HH:MM)" style="width:100%;padding:6px;border-radius:8px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.04);color:#fff"/>
-                  <input id="customEnd" placeholder="End (YYYY-MM-DD HH:MM)" style="width:100%;margin-top:6px;padding:6px;border-radius:8px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.04);color:#fff"/>
-                  <div style="display:flex;gap:8px;margin-top:8px"><button class="btn" id="applyCustom">Apply</button><button class="btn" id="cancelCustom">Cancel</button></div>
-                </div>
+                <input id="customEnd" placeholder="End (YYYY-MM-DD HH:MM)" style="width:100%;padding:8px;border-radius:8px;background:#0b0b0b;border:1px solid rgba(255,255,255,0.03);color:#fff" />
+                <div style="height:8px"></div>
+                <div style="display:flex;gap:8px"><button class="btn" id="applyCustom">Apply</button><button class="btn" id="cancelCustom">Cancel</button></div>
               </div>
             </div>
           </div>
 
-          <div style="display:flex;gap:8px;align-items:center">
-            <select id="compareMetric" class="neon-select">
-              <option value="aqi">AQI</option>
-              <option value="temp">Temperature</option>
-              <option value="hum">Humidity</option>
-              <option value="overlay">AQI vs Temp vs Humidity</option>
-            </select>
-            <button class="btn" id="compareBtn">Compare</button>
+          <select id="compareMetric" class="select" style="min-width:160px">
+            <option value="ppm">AQI (PPM)</option>
+            <option value="temp">Temperature</option>
+            <option value="hum">Humidity</option>
+          </select>
+          <button class="btn" id="compareBtn">Compare (Today vs Yesterday)</button>
+
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn" id="zoomInBtn">Zoom In</button>
+            <button class="btn" id="zoomOutBtn">Zoom Out</button>
+            <button class="btn" id="resetZoomBtn">Reset Zoom</button>
           </div>
         </div>
-      </div>
 
-      <div class="canvas-wrap" style="margin-top:12px"><canvas id="histChart"></canvas></div>
+        <div class="canvas-wrap" style="margin-top:8px">
+          <canvas id="histChart"></canvas>
+        </div>
+      </div>
     </div>
 
-    <div class="footer">© 2025 — ARTIFEX AQI — Rishi Savani</div>
+    <!-- side area: 3 neon cards -->
+    <div class="card side" style="grid-column:span 4">
+      <!-- Prediction card -->
+      <div id="predCard" class="neon-card" style="position:relative;overflow:visible">
+        <div class="title">Prediction — Next 1 hour</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div id="predScore" class="value" style="font-size:24px">--</div>
+            <div id="predCategory" class="muted">Forecast status</div>
+          </div>
+          <div style="text-align:right">
+            <div id="predTrend" class="muted">Trend — —</div>
+            <div style="height:6px"></div>
+            <small class="muted">Based on linear regression</small>
+          </div>
+        </div>
+        <div class="neon-border" id="predGlow"></div>
+      </div>
+
+      <!-- Alerts + customization -->
+      <div id="alertsCard" class="neon-card" style="position:relative;">
+        <div class="title">Alerts & Customization</div>
+        <div style="margin-top:8px">
+          <label class="muted">PPM warning threshold: <input id="thrPPM" type="number" value="150" style="width:100px;margin-left:8px" /></label>
+        </div>
+        <div style="margin-top:8px">
+          <label class="muted">Temperature threshold (°C): <input id="thrTemp" type="number" value="40" style="width:100px;margin-left:8px" /></label>
+        </div>
+        <div style="margin-top:8px">
+          <label class="muted">Humidity threshold (%): <input id="thrHum" type="number" value="75" style="width:100px;margin-left:8px" /></label>
+        </div>
+        <div style="margin-top:12px">
+          <label><input type="checkbox" id="enableVoice" checked/> Enable voice alerts</label><br/>
+          <label><input type="checkbox" id="enableOnScreen" checked/> On-screen popups</label>
+        </div>
+        <div class="neon-border" id="alertsGlow"></div>
+      </div>
+
+      <!-- Health recommendation -->
+      <div id="healthCard" class="neon-card" style="position:relative;">
+        <div class="title">Health Recommendation</div>
+        <div id="healthText" style="margin-top:8px;color:var(--muted)">No data yet.</div>
+        <div style="margin-top:10px" id="healthTips" class="muted"></div>
+        <div class="neon-border" id="healthGlow"></div>
+      </div>
+    </div>
+
   </div>
 
-  <div id="alertBox" class="card" style="position:fixed;right:18px;top:18px;display:none;z-index:1000"></div>
+  <div style="height:28px"></div>
+  <div style="text-align:center;color:var(--muted);font-size:0.86rem">© 2025 — ARTIFEX — Built by Rishi</div>
+</div>
+
+<!-- alerts -->
+<div id="alertBox" style="position:fixed;right:18px;top:18px;padding:12px 14px;border-radius:10px;background:#111;display:none;z-index:9999"></div>
 
 <script>
-/* ================== CONFIG ================== */
-/* Replace firebaseConfig with your config */
+/* ---------------- FIREBASE CONFIG ----------------
+   Replace with your project's web config if different */
 const firebaseConfig = {
-  apiKey: "AIzaSyDExWY6TkAItsbj7bG5KlGy4Ehvn21Qojw",
+   apiKey: "AIzaSyDExWY6TkAItsbj7bG5KlGy4Ehvn21Qojw",
   authDomain: "esp32-airquality-monitor.firebaseapp.com",
   databaseURL: "https://esp32-airquality-monitor-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "esp32-airquality-monitor",
@@ -229,204 +264,208 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
-/* Device id: change this to match your device key in Firebase */
-const DEVICE_ID = 'AIR-SENSE-PRO';             // change here to match DB key
+/* ---------------- SETTINGS ----------------
+   Change DEVICE_ID here to match DB key EXACTLY (case-sensitive).
+   If your Arduino uploads to devices/AIR-SENSE-PRO/readings, use 'AIR-SENSE-PRO'.
+*/
+const DEVICE_ID = 'AIR-SENSE-PRO'; // <- change this if needed
 const REF = `devices/${DEVICE_ID}/readings`;
 
-/* Optional: provide TF.js hosted model URL (must be hosted accessible via https)
-   If you put a model (tfjs format) here, the page will attempt to use it. Otherwise fallback. */
-const TF_MODEL_URL = null; // e.g. "https://yourdomain.com/models/aqi_lstm/model.json"
-
-/* ================== Utilities ================== */
+/* ---------------- Utilities ---------------- */
 function showAlert(msg, color){
   const el = document.getElementById('alertBox');
-  el.innerText = msg; el.style.display = 'block'; el.style.borderLeft = color?('6px solid '+color):'';
-  setTimeout(()=>el.style.display='none',6000);
+  el.innerText = msg; el.style.display = 'block'; el.style.borderLeft = color?('6px solid '+color):'none';
+  setTimeout(()=> el.style.display='none', 6000);
 }
-function speak(text){ if(!document.getElementById('enableVoice').checked) return; try{ speechSynthesis.cancel(); speechSynthesis.speak(new SpeechSynthesisUtterance(text)); }catch(e){} }
+function speak(text){
+  if(!document.getElementById('enableVoice').checked) return;
+  try{ speechSynthesis.cancel(); speechSynthesis.speak(new SpeechSynthesisUtterance(text)); }catch(e){}
+}
 
-function parseKeyToMs(key){
-  if(!key) return NaN;
-  let s = String(key).trim().replace(/_/g,':');
-  s = s.replace(/\s+T\s+/,'T').replace(/\s+/,'T');
-  // fix if first ':' appears after date: 2025-11-22:12:00:00 -> replace first ':' with 'T'
+/* robust timestamp parser for common microcontroller formats */
+function parseTS(k){
+  if(!k) return NaN;
+  let s = String(k).trim();
+  s = s.replace(/_/g,':');           // underscores -> colons
+  s = s.replace(/\s+T\s+/,'T');      // " T " -> "T"
+  s = s.replace(/\s+/,'T');          // space -> T
+  // if ":" appears too early (from replaced underscore), fix first colon after date
   const parts = s.split(':');
-  if(parts.length>2 && parts[0].indexOf('-')!==-1 && parts[0].indexOf('T')===-1){
+  if(parts.length > 2 && parts[0].indexOf('-')!==-1 && parts[0].indexOf('T')===-1){
     s = s.replace(/:/,'T');
   }
   const t = Date.parse(s);
   return isNaN(t)? NaN : t;
 }
 
-/* ================== State ================== */
+/* ---------------- State ---------------- */
 let liveHistory = [];
 let lastTimestamp = null;
 let connected = false;
-let histChart = null;
-let liveChart = null;
-let modelTF = null; // tf model if loaded
 
-/* ================== Charts init ================== */
+/* ---------------- Charts setup ---------------- */
 const liveCtx = document.getElementById('liveChart').getContext('2d');
-liveChart = new Chart(liveCtx, {
+const liveChart = new Chart(liveCtx, {
   type:'line',
-  data:{ labels:[], datasets:[
-    {label:'Gas PPM', data:[], borderColor:'#00eaff', tension:0.25, pointRadius:2, borderWidth:2},
-    {label:'Temperature °C', data:[], borderColor:'#ff9800', tension:0.25, pointRadius:2, borderWidth:2, hidden:true},
-    {label:'Humidity %', data:[], borderColor:'#00ff88', tension:0.25, pointRadius:2, borderWidth:2, hidden:true}
-  ]},
-  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{ticks:{color:'#fff'}}, y:{ticks:{color:'#fff'}}} }
+  data:{
+    labels:[],
+    datasets:[
+      {label:'Gas PPM', data:[], borderColor:'#00eaff', backgroundColor:'rgba(0,234,255,0.02)', tension:0.25, pointRadius:2, borderWidth:2},
+      {label:'Temperature °C', data:[], borderColor:'#ff9800', backgroundColor:'rgba(255,152,0,0.02)', tension:0.25, pointRadius:2, borderWidth:2, hidden:true},
+      {label:'Humidity %', data:[], borderColor:'#00ff88', backgroundColor:'rgba(0,255,136,0.02)', tension:0.25, pointRadius:2, borderWidth:2, hidden:true}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{ x:{ ticks:{ color:'#fff' } }, y:{ ticks:{ color:'#fff' } } }
+  }
 });
 
 const histCtx = document.getElementById('histChart').getContext('2d');
-histChart = new Chart(histCtx, {
+const histChart = new Chart(histCtx, {
   type:'line',
-  data:{ labels:[], datasets:[
-    {label:'Series A', data:[], borderColor:'#b84cff', tension:0.25, pointRadius:2, borderWidth:2},
-    {label:'Compare', data:[], borderColor:'#00eaff', tension:0.25, pointRadius:2, borderWidth:2, hidden:true}
-  ]},
+  data:{ labels:[], datasets:[{ label:'AQI (PPM)', data:[], borderColor:'#b84cff', tension:0.2, pointRadius:2, borderWidth:2 }] },
   options:{
     responsive:true, maintainAspectRatio:false,
-    plugins:{
-      legend:{ display:false },
-      zoom:{
-        pan:{enabled:true, mode:'x'},
-        zoom:{ wheel:{enabled:true}, pinch:{enabled:true}, mode:'x' }
-      }
-    },
-    scales:{ x:{ticks:{color:'#fff', autoSkip:true, maxTicksLimit:8}}, y:{ticks:{color:'#fff'}} }
+    plugins:{ legend:{display:false}, zoom:{ pan:{enabled:true, mode:'x'}, zoom:{ wheel:{enabled:true}, pinch:{enabled:true}, mode:'x' } } },
+    scales:{ x:{ ticks:{ color:'#fff', autoSkip:true, maxTicksLimit:8 } }, y:{ ticks:{ color:'#fff' } } }
   }
 });
 
-/* ================== AQI meta + dynamic health card ================== */
+/* ---------------- AQI meta ---------------- */
 function aqiMeta(ppm){
   ppm = Number(ppm) || 0;
-  if(ppm < 80) return {label:'Good', color:'#19d37c', health:'Low risk. Normal activities.', adv: 'Enjoy outdoor activities.'};
-  if(ppm < 150) return {label:'Moderate', color:'#ffd166', health:'Reduce prolonged outdoor exertion.', adv: 'Limit long outdoor exercise.'};
-  if(ppm < 250) return {label:'Unhealthy', color:'#ff4d6d', health:'Avoid long outdoor activity.', adv: 'Use mask; avoid strenuous activity.'};
-  return {label:'Hazardous', color:'#b84cff', health:'Stay indoors; use masks/air purifiers.', adv: 'Immediate precautions: stay inside.'};
+  if(ppm < 80) return {label:'Good', color:'#19d37c', health:'Low risk. Normal activities.'};
+  if(ppm < 150) return {label:'Moderate', color:'#ffd166', health:'Reduce prolonged outdoor exertion.'};
+  if(ppm < 250) return {label:'Unhealthy', color:'#ff4d6d', health:'Avoid long outdoor activity.'};
+  return {label:'Hazardous', color:'#b84cff', health:'Stay indoors; use masks/air purifiers.'};
 }
 
+/* ---------------- Update small cards ---------------- */
 function updateCards(obj){
-  document.getElementById('tempCard').innerText = (obj.temperature!==undefined ? obj.temperature : '--') + ' °C';
-  document.getElementById('humCard').innerText = (obj.humidity!==undefined ? obj.humidity : '--') + ' %';
+  document.getElementById('tempCard').innerText = (obj.temperature!==undefined? obj.temperature:'--') + ' °C';
+  document.getElementById('humCard').innerText = (obj.humidity!==undefined? obj.humidity:'--') + ' %';
+  document.getElementById('statusCard').innerText = aqiMeta(obj.gas_ppm).label;
+  document.getElementById('statusCard').style.color = aqiMeta(obj.gas_ppm).color;
+  document.getElementById('connStatusText').innerText = connected ? 'Online' : 'Offline';
+  document.getElementById('lastSeen').innerText = lastTimestamp ? new Date(parseTS(lastTimestamp)).toLocaleString() : '--';
+
+  // health card update: different advice based on category
   const meta = aqiMeta(obj.gas_ppm);
-  document.getElementById('statusCard').innerText = meta.label;
-  document.getElementById('statusCard').style.color = meta.color;
-  document.getElementById('connStatus').innerText = connected ? 'Online' : 'Offline';
-  document.getElementById('lastSeen').innerText = lastTimestamp ? new Date(parseKeyToMs(lastTimestamp)).toLocaleString() : '--';
-
-  // dynamic health card display (rotating suggestions)
-  const pool = [
-    meta.adv,
-    'Stay hydrated and avoid outdoor cooking.',
-    'Check indoor ventilation; run purifier if available.',
-    'If symptoms occur, contact medical help.'
-  ];
-  const extra = pool[Math.floor(Math.random()*pool.length)];
-  document.getElementById('healthDynamic').innerHTML = `<div style="font-weight:900;color:${meta.color}">${meta.label}</div><div class="small" id="healthDetail">${meta.health} — ${extra}</div>`;
-}
-
-/* ================== Forecasting block ================== */
-/* linear regression fallback */
-function linearPredict(arr, forwardSteps=6){
-  const N = Math.min(20, (arr||[]).length);
-  if(N < 3) return null;
-  const xs = [], ys = [];
-  for(let i=0;i<N;i++){ xs.push(i); ys.push(arr[arr.length - N + i]); }
-  const xMean = xs.reduce((a,b)=>a+b,0)/N; const yMean = ys.reduce((a,b)=>a+b,0)/N;
-  let num=0, den=0;
-  for(let i=0;i<N;i++){ num += (xs[i]-xMean)*(ys[i]-yMean); den += (xs[i]-xMean)*(xs[i]-xMean); }
-  const m = den===0?0:num/den; const c = yMean - m*xMean;
-  const pred = m*(N + forwardSteps) + c;
-  return Math.max(0, Math.round(pred));
-}
-
-/* TF.js LSTM predictor (will run only if TF_MODEL_URL is set and accessible)
-   Expectation: model takes normalized sequence and outputs numeric AQI prediction.
-   This code is a template — adapt preprocessing to your model's expected input. */
-async function tfPredictOneHour(seq){ // seq = recent ppm array
-  if(!TF_MODEL_URL) return null;
-  try{
-    if(!modelTF){ modelTF = await tf.loadLayersModel(TF_MODEL_URL); document.getElementById('forecastMethod').innerText = 'TF LSTM Model'; }
-    // prepare input: this depends on your model. Here we assume [1, time_steps, 1] input and values scaled 0..1
-    const timeSteps = Math.min(50, seq.length);
-    const arr = seq.slice(-timeSteps).map(x=>Number(x)||0);
-    const maxVal = Math.max(...arr, 1);
-    const norm = arr.map(v => v / maxVal);
-    const input = tf.tensor(norm).reshape([1, norm.length, 1]);
-    const out = modelTF.predict(input);
-    const pred = (await out.data())[0] * maxVal;
-    tf.dispose([input, out]);
-    return Math.round(pred);
-  }catch(e){ console.warn('TF predict failed:', e); return null; }
-}
-
-/* run forecast and update 1-hour card */
-async function updateForecast(ppmArr){
-  // prefer TF if available
-  let pred = null;
-  if(TF_MODEL_URL) pred = await tfPredictOneHour(ppmArr);
-  if(pred === null) pred = linearPredict(ppmArr, 6); // fallback
-  if(pred === null) return;
-  const meta = aqiMeta(pred);
-  document.getElementById('oneHourScore').innerText = pred;
-  document.getElementById('oneHourAdvice').innerText = meta.health;
-  // also fill health card for next hour
-  document.getElementById('predictionMethod')?.remove?.();
-}
-
-/* ================== Real-time listener (safe) ================== */
-firebase.database().ref(REF).limitToLast(1).on('child_added', async snap => {
-  try{
-    const val = snap.val(); if(!val) return;
-    connected = true;
-    lastTimestamp = snap.key || new Date().toISOString();
-
-    // push to history
-    liveHistory.push({ts:lastTimestamp, ...val});
-    if(liveHistory.length > 2000) liveHistory.shift();
-
-    // ensure liveChart ready
-    if(!liveChart || !liveChart.data) return;
-
-    const tLabel = new Date().toLocaleTimeString();
-    liveChart.data.labels.push(tLabel);
-    liveChart.data.datasets[0].data.push(Number(val.gas_ppm) || 0);
-    liveChart.data.datasets[1].data.push(Number(val.temperature) || 0);
-    liveChart.data.datasets[2].data.push(Number(val.humidity) || 0);
-
-    if(liveChart.data.labels.length > 60){
-      liveChart.data.labels.shift();
-      liveChart.data.datasets.forEach(d=>d.data.shift());
-    }
-    liveChart.update();
-
-    updateCards(val);
-
-    // forecast using recent ppm
-    const ppmArr = liveHistory.slice(-40).map(x => Number(x.gas_ppm) || 0);
-    await updateForecast(ppmArr);
-
-    // alerts
-    const meta = aqiMeta(val.gas_ppm);
-    const customPPM = Number(document.getElementById('threshPPM').value) || null;
-    if((customPPM && val.gas_ppm >= customPPM) || val.gas_ppm > 150){
-      if(document.getElementById('enableOnScreen').checked) showAlert('High AQI: '+meta.label, meta.color);
-      if(document.getElementById('enableVoice').checked) speak('Warning. Air quality is '+meta.label);
-    }
-  }catch(e){
-    console.error('Realtime callback error:', e);
+  document.getElementById('healthText').innerText = meta.health;
+  const tips = [];
+  if(obj.gas_ppm >= 250) {
+    tips.push('Avoid all outdoor activities. Use N95 masks indoors/outdoors.');
+    tips.push('Use air purifiers and keep windows closed.');
+  } else if(obj.gas_ppm >= 150) {
+    tips.push('Reduce prolonged outdoor exertion.');
+    tips.push('Sensitive groups: keep meds/inhaler ready.');
+  } else if(obj.gas_ppm >= 80) {
+    tips.push('Unnecessary to restrict activities but be cautious.');
+    tips.push('Consider short breaks indoors if you feel discomfort.');
+  } else {
+    tips.push('Air quality good. Normal activity safe.');
+    tips.push('Keep ventilation and maintain indoor plants.');
   }
+  const tipsEl = document.getElementById('healthTips');
+  tipsEl.innerHTML = tips.map(t => `<div style="margin-bottom:6px">${t}</div>`).join('');
+  // card glow
+  document.getElementById('healthCard').className = 'neon-card ' + (obj.gas_ppm<80? 'glow-good': obj.gas_ppm<150? 'glow-moderate': obj.gas_ppm<250? 'glow-unhealthy':'glow-hazard');
+}
+
+/* ---------------- Firebase realtime listener (safe) ---------------- */
+window.addEventListener('load', () => {
+  // safety: ensure charts are defined
+  if(!liveChart || !histChart) { console.error('charts not ready'); return; }
+
+  // Listen for last child added - safe checks
+  try {
+    firebase.database().ref(REF).limitToLast(1).on('child_added', snap => {
+      if(!snap) return;
+      const val = snap.val();
+      if(!val) return;
+
+      connected = true;
+      lastTimestamp = snap.key || new Date().toISOString();
+      liveHistory.push({ ts:lastTimestamp, ...val });
+      if(liveHistory.length > 2000) liveHistory.shift();
+
+      // safe chart updates
+      const tLabel = new Date().toLocaleTimeString();
+      if(liveChart.data && Array.isArray(liveChart.data.labels)){
+        liveChart.data.labels.push(tLabel);
+        liveChart.data.datasets[0].data.push(val.gas_ppm || 0);
+        liveChart.data.datasets[1].data.push(val.temperature || 0);
+        liveChart.data.datasets[2].data.push(val.humidity || 0);
+        if(liveChart.data.labels.length > 60){
+          liveChart.data.labels.shift();
+          liveChart.data.datasets.forEach(d => d.data.shift());
+        }
+        liveChart.update();
+      }
+
+      updateCards(val);
+
+      // run forecast (linear regression)
+      const ppmArr = liveHistory.slice(-30).map(x => Number(x.gas_ppm) || 0);
+      runForecast(ppmArr);
+
+      // alerts check
+      const thrPPM = Number(document.getElementById('thrPPM').value) || 150;
+      const thrTemp = Number(document.getElementById('thrTemp').value) || 40;
+      const thrHum = Number(document.getElementById('thrHum').value) || 75;
+      if(val.gas_ppm > thrPPM || val.temperature > thrTemp || val.humidity > thrHum){
+        const meta = aqiMeta(val.gas_ppm);
+        if(document.getElementById('enableOnScreen').checked) showAlert(`Warning: ${meta.label} — PPM:${val.gas_ppm}`, meta.color);
+        if(document.getElementById('enableVoice').checked) speak(`Warning. Air quality ${meta.label}`);
+        // highlight alerts card
+        const c = document.getElementById('alertsCard');
+        c.classList.add('glow-unhealthy');
+        setTimeout(()=> c.classList.remove('glow-unhealthy'), 2500);
+      }
+    });
+  } catch(e){
+    console.warn('Realtime listener failed; fallback polling.', e);
+    setInterval(async () => {
+      try {
+        const snap = await firebase.database().ref(REF).limitToLast(1).once('value');
+        const valObj = snap.val();
+        if(!valObj) return;
+        const key = Object.keys(valObj)[0];
+        const val = valObj[key];
+        connected = true;
+        lastTimestamp = key;
+        liveHistory.push({ ts:key, ...val});
+        if(liveHistory.length>2000) liveHistory.shift();
+
+        // update charts same as above
+        const tLabel = new Date().toLocaleTimeString();
+        if(liveChart.data && Array.isArray(liveChart.data.labels)){
+          liveChart.data.labels.push(tLabel);
+          liveChart.data.datasets[0].data.push(val.gas_ppm || 0);
+          if(liveChart.data.labels.length > 60){
+            liveChart.data.labels.shift(); liveChart.data.datasets.forEach(d=>d.data.shift());
+          }
+          liveChart.update();
+        }
+        updateCards(val);
+      } catch(e) { console.warn(e); }
+    }, 15000);
+  }
+
+  // initial historical load (today)
+  loadRangeToday();
 });
 
-/* ================== Live series toggles ================== */
+/* ---------------- Live mode toggles ---------------- */
+const indicator = document.getElementById('liveIndicator');
 function setLiveMode(mode){
   if(!liveChart) return;
-  if(mode === 'ppm'){ liveChart.data.datasets[0].hidden=false; liveChart.data.datasets[1].hidden=true; liveChart.data.datasets[2].hidden=true; document.getElementById('liveIndicator').innerText='Live: PPM'; }
-  if(mode === 'temp'){ liveChart.data.datasets[0].hidden=true; liveChart.data.datasets[1].hidden=false; liveChart.data.datasets[2].hidden=true; document.getElementById('liveIndicator').innerText='Live: Temperature'; }
-  if(mode === 'hum'){ liveChart.data.datasets[0].hidden=true; liveChart.data.datasets[1].hidden=true; liveChart.data.datasets[2].hidden=false; document.getElementById('liveIndicator').innerText='Live: Humidity'; }
-  if(mode === 'all'){ liveChart.data.datasets.forEach(ds=>ds.hidden=false); document.getElementById('liveIndicator').innerText='Live: All Sensors'; }
+  if(mode === 'ppm'){ liveChart.data.datasets[0].hidden=false; liveChart.data.datasets[1].hidden=true; liveChart.data.datasets[2].hidden=true; indicator.innerText='Live: PPM'; }
+  if(mode === 'temp'){ liveChart.data.datasets[0].hidden=true; liveChart.data.datasets[1].hidden=false; liveChart.data.datasets[2].hidden=true; indicator.innerText='Live: Temperature'; }
+  if(mode === 'hum'){ liveChart.data.datasets[0].hidden=true; liveChart.data.datasets[1].hidden=true; liveChart.data.datasets[2].hidden=false; indicator.innerText='Live: Humidity'; }
+  if(mode === 'all'){ liveChart.data.datasets.forEach(d=>d.hidden=false); indicator.innerText='Live: All Sensors'; }
   liveChart.update();
 }
 document.getElementById('btnPPM').addEventListener('click', ()=>setLiveMode('ppm'));
@@ -434,139 +473,181 @@ document.getElementById('btnTemp').addEventListener('click', ()=>setLiveMode('te
 document.getElementById('btnHum').addEventListener('click', ()=>setLiveMode('hum'));
 document.getElementById('btnAll').addEventListener('click', ()=>setLiveMode('all'));
 
-/* ================== CSV download ================== */
+/* ---------------- CSV download ---------------- */
 document.getElementById('downloadCsv').addEventListener('click', ()=>{
   if(liveHistory.length===0){ showAlert('No data to download'); return; }
   const headers = ['timestamp','temperature_c','humidity_pct','mq135_ppm','aqi_status'];
-  const rows = liveHistory.map(r=>[r.ts||'', r.temperature, r.humidity, r.gas_ppm, r.status||'']);
+  const rows = liveHistory.map(r => [r.ts||'', r.temperature, r.humidity, r.gas_ppm, r.status||'']);
   let csv = headers.join(',') + '\n';
   rows.forEach(r => { csv += r.map(v => ('"' + String(v).replace(/"/g,'""') + '"')).join(',') + '\n'; });
-  const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
+  const blob = new Blob([csv], { type:'text/csv' });
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = `${DEVICE_ID}_data.csv`; a.click(); URL.revokeObjectURL(url);
 });
 
-/* ================== Historical loader & comparison ================== */
-async function loadRange(startMs, endMs, metric='aqi', compareWith=null){
+/* ---------------- Historical & comparison ---------------- */
+const rangeBtn = document.getElementById('rangeBtn');
+const rangeMenu = document.getElementById('rangeMenu');
+
+rangeBtn.addEventListener('click', ()=> {
+  rangeMenu.style.display = (rangeMenu.style.display === 'block') ? 'none' : 'block';
+});
+
+// menu items wiring
+rangeMenu.querySelectorAll('.item').forEach(it => {
+  it.addEventListener('click', async (e) => {
+    const r = e.currentTarget.getAttribute('data-range');
+    rangeMenu.style.display = 'none';
+    if(r === 'today') loadRangeToday();
+    else if(r === 'yesterday') loadRangeYesterday();
+    else if(r === '3days') loadLastDays(3);
+    else if(r === '24h') loadLastHours(24);
+    else if(r === '7days') loadLastDays(7);
+    else if(e.currentTarget.id === 'customRangeItem') {
+      document.getElementById('customRangePanel').style.display = 'block';
+    }
+  });
+});
+
+// custom panel controls
+document.getElementById('applyCustom').addEventListener('click', ()=>{
+  const s = document.getElementById('customStart').value;
+  const e = document.getElementById('customEnd').value;
+  if(!s || !e) { showAlert('Please set both start and end'); return; }
+  const startMs = Date.parse(s.replace(' ','T'));
+  const endMs = Date.parse(e.replace(' ','T'));
+  if(isNaN(startMs) || isNaN(endMs)){ showAlert('Invalid date format'); return; }
+  document.getElementById('customRangePanel').style.display = 'none';
+  loadRange(startMs, endMs);
+});
+document.getElementById('cancelCustom').addEventListener('click', ()=> {
+  document.getElementById('customRangePanel').style.display = 'none';
+});
+
+/* helper historical loaders */
+function loadRangeToday(){ const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); loadRange(start, Date.now()); rangeBtn.innerText = 'Range: Today ▾'; }
+function loadRangeYesterday(){ const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()-1).getTime(); const end = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); loadRange(start, end); rangeBtn.innerText = 'Range: Yesterday ▾'; }
+function loadLastDays(n){ const end = Date.now(); const start = end - n*24*60*60*1000; loadRange(start, end); rangeBtn.innerText = `Range: Last ${n} days ▾`; }
+function loadLastHours(h){ const start = Date.now() - h*60*60*1000; loadRange(start, Date.now()); rangeBtn.innerText = `Range: Last ${h} hours ▾`; }
+
+async function loadRange(startMs, endMs){
   try{
     const snap = await firebase.database().ref(REF).once('value');
     const data = snap.val();
     if(!data){ showAlert('No historical data'); return; }
-    const items = Object.keys(data).map(k=>({ts:k, ...data[k]}));
-    const filtered = items.filter(it=>{ const t = parseKeyToMs(it.ts); return !isNaN(t) && t>=startMs && t<=endMs; });
-    filtered.sort((a,b)=> parseKeyToMs(a.ts)-parseKeyToMs(b.ts));
+    const items = Object.keys(data).map(k => ({ ts: k, ...data[k] }));
+    const filtered = items.filter(it => {
+      const ts = parseTS(it.ts);
+      return !isNaN(ts) && ts >= startMs && ts <= endMs;
+    }).sort((a,b)=> parseTS(a.ts) - parseTS(b.ts));
 
-    // labels
-    histChart.data.labels = filtered.map(x=> (new Date(parseKeyToMs(x.ts))).toLocaleString());
-
-    // primary series
-    if(metric === 'aqi') histChart.data.datasets[0].data = filtered.map(x=>Number(x.gas_ppm)||0);
-    if(metric === 'temp') histChart.data.datasets[0].data = filtered.map(x=>Number(x.temperature)||0);
-    if(metric === 'hum') histChart.data.datasets[0].data = filtered.map(x=>Number(x.humidity)||0);
-
-    histChart.data.datasets[0].label = metric==='aqi' ? 'AQI (PPM)' : metric==='temp' ? 'Temperature (°C)' : 'Humidity (%)';
+    histChart.data.labels = filtered.map(x => new Date(parseTS(x.ts)).toLocaleString());
+    histChart.data.datasets[0].data = filtered.map(x => Number(x.gas_ppm) || 0);
     histChart.update();
 
-    // compareWith = 'yesterday' or 'prev' -> compute compare series aligned by time-of-day (simple approach)
-    if(compareWith === 'yesterday'){
-      // create time-of-day mapping for yesterday
-      const yesterdayStart = startMs - 24*3600*1000;
-      const yesterdayEnd = endMs - 24*3600*1000;
-      const yFiltered = items.filter(it=>{ const t = parseKeyToMs(it.ts); return !isNaN(t) && t>=yesterdayStart && t<=yesterdayEnd;});
-      // simple alignment: map by index (if different lengths, pad)
-      const ySorted = yFiltered.sort((a,b)=>parseKeyToMs(a.ts)-parseKeyToMs(b.ts));
-      const yVals = metric==='aqi' ? ySorted.map(x=>Number(x.gas_ppm)||0) : metric==='temp' ? ySorted.map(x=>Number(x.temperature)||0) : ySorted.map(x=>Number(x.humidity)||0);
-      // try align lengths
-      const L = histChart.data.labels.length;
-      const yAligned = Array.from({length:L}, (_,i)=> yVals[Math.floor(i * (yVals.length || 1) / (L || 1))] || 0);
-      histChart.data.datasets[1].data = yAligned;
-      histChart.data.datasets[1].hidden = false;
-      histChart.update();
-      showAlert('Comparison: current range vs Yesterday');
-    } else {
-      histChart.data.datasets[1].hidden = true;
-      histChart.update();
-    }
-
-  }catch(e){ console.error(e); showAlert('Historical load error: '+e.message); }
+    showAlert('Loaded ' + filtered.length + ' historical points');
+  } catch(e){
+    console.error(e);
+    showAlert('Error loading historical: ' + e.message);
+  }
 }
 
-/* UI: range menu wiring */
-const rangeBtn = document.getElementById('rangeBtn');
-const rangeMenu = document.getElementById('rangeMenu');
-rangeBtn.addEventListener('click', ()=>{ rangeMenu.style.display = rangeMenu.style.display==='block' ? 'none' : 'block'; });
+/* comparison (today vs yesterday overlay) simple implementation:
+   loads today's and yesterday's arrays and overlays them by drawing two datasets.
+*/
+document.getElementById('compareBtn').addEventListener('click', async ()=>{
+  const metric = document.getElementById('compareMetric').value;
+  // loads today and yesterday
+  const now = new Date();
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate()-1).getTime();
+  const endYesterday = startToday - 1;
+  try{
+    const snap = await firebase.database().ref(REF).once('value');
+    const data = snap.val(); if(!data){ showAlert('No historical data'); return; }
+    const items = Object.keys(data).map(k => ({ ts:k, ...data[k] }));
+    const today = items.filter(i=> { const t=parseTS(i.ts); return !isNaN(t) && t>=startToday && t<=Date.now(); }).sort((a,b)=>parseTS(a.ts)-parseTS(b.ts));
+    const yesterday = items.filter(i=> { const t=parseTS(i.ts); return !isNaN(t) && t>=startYesterday && t<=endYesterday; }).sort((a,b)=>parseTS(a.ts)-parseTS(b.ts));
 
-rangeMenu.querySelectorAll('[data-range]').forEach(el=>{
-  el.addEventListener('click', async (evt)=>{
-    const r = evt.currentTarget.getAttribute('data-range');
-    rangeMenu.style.display='none';
-    rangeBtn.innerText = 'Range: ' + (r==='24h' ? 'Last 24h' : r==='today' ? 'Today' : r==='yesterday' ? 'Yesterday' : 'Last 3 days') + ' ▾';
-    if(r === '24h'){ const end = Date.now(); await loadRange(end - 24*3600*1000, end, document.getElementById('compareMetric').value); }
-    if(r === 'today'){ const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); await loadRange(start, Date.now(), document.getElementById('compareMetric').value); }
-    if(r === 'yesterday'){ const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()-1).getTime(); const end = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); await loadRange(start, end, document.getElementById('compareMetric').value, 'yesterday'); }
-    if(r === '3days'){ const end = Date.now(); await loadRange(end - 3*24*3600*1000, end, document.getElementById('compareMetric').value); }
-  });
+    // create overlay: align by index (simple approach)
+    const labels = today.map(x => new Date(parseTS(x.ts)).toLocaleTimeString());
+    const todayVals = today.map(x => metric==='temp'? Number(x.temperature)||0 : metric==='hum'? Number(x.humidity)||0 : Number(x.gas_ppm)||0 );
+    const yesterdayVals = yesterday.slice(-todayVals.length).map(x => metric==='temp'? Number(x.temperature)||0 : metric==='hum'? Number(x.humidity)||0 : Number(x.gas_ppm)||0 );
+
+    histChart.data.labels = labels;
+    histChart.data.datasets = [
+      { label: `Today (${metric})`, data: todayVals, borderColor:'#b84cff', tension:0.2, pointRadius:2 },
+      { label: `Yesterday (${metric})`, data: yesterdayVals, borderColor:'#00eaff', tension:0.2, pointRadius:2 }
+    ];
+    histChart.update();
+    showAlert('Comparison loaded: Today vs Yesterday');
+  }catch(e){ console.error(e); showAlert('Comparison failed'); }
 });
 
-/* custom range toggle */
-document.getElementById('customRangeToggle').addEventListener('click', ()=> {
-  const p = document.getElementById('customRangePanel'); p.style.display = p.style.display==='block' ? 'none':'block';
-});
-document.getElementById('cancelCustom').addEventListener('click', ()=>{ document.getElementById('customStart').value=''; document.getElementById('customEnd').value=''; document.getElementById('customRangePanel').style.display='none'; });
-flatpickr('#customStart',{enableTime:true,dateFormat:'Y-m-d H:i'});
-flatpickr('#customEnd',{enableTime:true,dateFormat:'Y-m-d H:i'});
-document.getElementById('applyCustom').addEventListener('click', async ()=>{
-  const s = document.getElementById('customStart').value; const e = document.getElementById('customEnd').value;
-  if(!s||!e){ showAlert('Set both start and end'); return; }
-  const startMs = Date.parse(s.replace(' ','T')); const endMs = Date.parse(e.replace(' ','T'));
-  if(isNaN(startMs)||isNaN(endMs)){ showAlert('Invalid dates'); return; }
-  document.getElementById('customRangePanel').style.display='none';
-  await loadRange(startMs, endMs, document.getElementById('compareMetric').value);
-});
+/* ---------------- Zoom controls ---------------- */
+function tryZoom(fn, arg){ try{ if(histChart && typeof histChart[fn] === 'function') histChart[fn](arg); else showAlert('Zoom not available'); }catch(e){ showAlert('Zoom failed'); } }
+document.getElementById('zoomInBtn').addEventListener('click', ()=>tryZoom('zoom',1.2));
+document.getElementById('zoomOutBtn').addEventListener('click', ()=>tryZoom('zoom',0.8));
+document.getElementById('resetZoomBtn').addEventListener('click', ()=>tryZoom('resetZoom'));
 
-/* compare button */
-document.getElementById('compareBtn').addEventListener('click', ()=>{
-  // reload using current visible range button label to detect which range -> easiest: default to last 24h
-  const label = rangeBtn.innerText.toLowerCase();
-  if(label.includes('24')) { loadRange(Date.now()-24*3600*1000, Date.now(), document.getElementById('compareMetric').value, 'yesterday'); }
-  else { loadRange(Date.now()-24*3600*1000, Date.now(), document.getElementById('compareMetric').value, 'yesterday'); }
-});
+/* ---------------- Linear regression forecast ----------------
+   Produces a simple short-horizon forecast — used as "prediction" card.
+*/
+function linearRegressionPredict(arr, forwardSteps = 6){
+  const N = Math.min(20, arr.length);
+  if(N < 3) return null;
+  const xs = [], ys = [];
+  for(let i=0;i<N;i++){ xs.push(i); ys.push(Number(arr[arr.length-N+i])||0); }
+  const xMean = xs.reduce((a,b)=>a+b,0)/N;
+  const yMean = ys.reduce((a,b)=>a+b,0)/N;
+  let num = 0, den = 0;
+  for(let i=0;i<N;i++){ num += (xs[i]-xMean)*(ys[i]-yMean); den += (xs[i]-xMean)*(xs[i]-xMean); }
+  const m = (den === 0) ? 0 : num/den;
+  const c = yMean - m*xMean;
+  const pred = m*(N + forwardSteps) + c;
+  return Math.max(0, Math.round(pred));
+}
 
-/* ================== zoom controls wiring */
-document.getElementById('zoomInBtn').addEventListener('click', ()=>{ try{ histChart.zoom(1.2); }catch(e){ showAlert('Zoom not supported'); } });
-document.getElementById('zoomOutBtn').addEventListener('click', ()=>{ try{ histChart.zoom(0.8); }catch(e){ showAlert('Zoom not supported'); } });
-document.getElementById('resetZoomBtn').addEventListener('click', ()=>{ try{ histChart.resetZoom(); }catch(e){ showAlert('Reset zoom not supported'); } });
+function runForecast(ppmArr){
+  const pred = linearRegressionPredict(ppmArr, 6); // ~ next 30-60 min
+  if(pred === null) {
+    document.getElementById('predScore').innerText = '--';
+    document.getElementById('predCategory').innerText = 'Insufficient data';
+    return;
+  }
+  const meta = aqiMeta(pred);
+  document.getElementById('predScore').innerText = pred;
+  document.getElementById('predCategory').innerText = meta.label;
+  // trend (compare last average to predicted)
+  const lastAvg = ppmArr.slice(-6).reduce((s,x)=>s+(Number(x)||0),0) / Math.max(1, Math.min(6, ppmArr.length));
+  const trend = pred > lastAvg ? 'Rising ↑' : (Math.abs(pred - lastAvg) < 2 ? 'Stable →' : 'Falling ↓');
+  document.getElementById('predTrend').innerText = 'Trend: ' + trend;
+  // glow pred card
+  const pc = document.getElementById('predCard');
+  pc.className = 'neon-card ' + (pred<80? 'glow-good': pred<150? 'glow-moderate': pred<250? 'glow-unhealthy':'glow-hazard');
+}
 
-/* ================== thresholds saving */
-document.getElementById('saveThresholds').addEventListener('click', ()=>{
-  showAlert('Thresholds saved (temporary)', '#00eaff');
-});
-
-/* ================== install prompt (PWA) - basic */
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e)=>{
-  e.preventDefault(); deferredPrompt = e; const btn = document.getElementById('installPromptBtn'); btn.style.display='inline-block';
-  btn.addEventListener('click', async ()=>{
-    if(!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null; btn.style.display='none';
-  });
-});
-
-/* ================== init cosmetic & default loads ================== */
-gsap.from('.card',{y:12,opacity:0,duration:0.7,stagger:0.04});
-loadRange(Date.now() - 24*3600*1000, Date.now(), 'aqi'); // load last 24h by default
-
-/* Connection monitor */
+/* ---------------- initial UI anims & connection checker ---------------- */
+gsap.from('.card', { y: 10, opacity: 0, duration: 0.7, stagger: 0.04 });
 setInterval(()=> {
-  if(!lastTimestamp){ connected=false; setConnection(false); return; }
-  const last = parseKeyToMs(lastTimestamp);
-  if(isNaN(last)){ setConnection(false); return; }
-  const diff = Date.now() - last;
-  setConnection(diff < 120000);
-},3000);
-function setConnection(on){ connected=on; document.getElementById('connStatus').innerText = on ? 'Online' : 'Offline'; document.getElementById('connDot').style.background = on ? '#19d37c' : '#ffd166'; }
+  if(!lastTimestamp){ connected=false; setConn(false); return; }
+  const last = parseTS(lastTimestamp);
+  if(isNaN(last)){ setConn(false); return; }
+  setConn(Date.now() - last < 120000);
+}, 3000);
+function setConn(isOnline){ connected = isOnline; document.getElementById('connStatusText').innerText = isOnline? 'Online' : 'Offline'; document.getElementById('connDot').style.background = isOnline? '#19d37c' : '#ffd166'; }
 
+/* ---------------- safe initial historical load ---------------- */
+function loadRangeToday(){ /* wrapper used earlier; but call once on load if required */ }
+loadRangeToday(); // fires nothing until configured - but keeps API consistent
+
+/* ---------------- small helpers to change device name from UI (optional) ---------------- */
+/* To change device name, update the DEVICE_ID constant at top and change label below */
+function setDeviceName(newName){
+  document.getElementById('deviceId').innerText = newName;
+}
+
+/* =================== END =================== */
 </script>
 </body>
 </html>
