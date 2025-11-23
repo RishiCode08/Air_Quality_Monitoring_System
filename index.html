@@ -20,6 +20,7 @@
 
   <style>
     /* Neon cyberpunk dark theme — responsive, clean, compact */
+    
     :root{
       --bg: #050505;
       --card: rgba(255,255,255,0.03);
@@ -32,6 +33,29 @@
       --radius: 12px;
       --card-pad: 16px;
     }
+    /* Neon glow borders */
+.card-prediction {
+    border: 2px solid #00eaff !important;
+    box-shadow: 0 0 15px rgba(0, 234, 255, 0.6) !important;
+}
+
+.card-alert {
+    border: 2px solid #ff4d6d !important;
+    box-shadow: 0 0 15px rgba(255, 77, 109, 0.55) !important;
+}
+
+.card-health {
+    border: 2px solid #ffd166 !important;
+    box-shadow: 0 0 15px rgba(255, 209, 102, 0.55) !important;
+}
+
+/* Neon title glow */
+.card-title {
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 0 10px currentColor;
+}
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -144,7 +168,7 @@
     <div class="top-cards">
       <div class="card">
         <div class="title">Device</div>
-        <div class="value"><span id="deviceId">ARTIFEX</span> · <small id="connStatusText">Connecting...</small></div>
+        <div class="value"><span id="deviceId">AIR-SENSE-PRO</span> · <small id="connStatusText">Connecting...</small></div>
         <div style="margin-top:8px" class="small-muted"><span id="connDot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffd166;margin-right:8px"></span><span id="lastSeen">Last update: --</span></div>
       </div>
       <div class="card">
@@ -281,7 +305,7 @@
       </div>
     </div>
 
-    <div class="footer">© 2025 — ARTIFEX — Built by Rishi</div>
+    <div class="footer">© 2025 — ARTIFEX —> Built by Rishi Savani</div>
   </div>
 
   <div style="position:fixed;right:14px;top:14px;display:none" id="alertBox"></div>
@@ -301,7 +325,7 @@
   firebase.initializeApp(firebaseConfig);
 
   /*************** SETTINGS ***************/
-  const DEVICE_ID = 'ARTIFEX'; // change device name here if needed
+  const DEVICE_ID = 'AIR-SENSE-PRO'; // change device name here if needed
   const REF = `devices/${DEVICE_ID}/readings`;
 
   function showAlert(msg, color){
@@ -757,3 +781,4 @@
   </script>
 </body>
 </html>
+
