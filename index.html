@@ -284,7 +284,7 @@ const histChart = new Chart(histCtx, {
   type:'line',
   data:{ labels:[], datasets:[ { label:'AQI (PPM)', data:[], borderColor:'#b84cff', pointRadius:2, borderWidth:2, tension:0.2 } ] },
   options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, zoom:{ pan:{enabled:true, mode:'x'}, zoom:{ wheel:{enabled:true}, pinch:{enabled:true}, mode:'x'} } }, scales:{ x:{ ticks:{ color:'#fff', autoSkip:true, maxTicksLimit:8 } }, y:{ ticks:{ color:'#fff' } } }
-});
+}});
 
 /* ================== AQI META & UI UPDATES ================== */
 function aqiMeta(v){
