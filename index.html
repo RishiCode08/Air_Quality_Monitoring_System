@@ -20,7 +20,6 @@
 
   <style>
     /* Neon cyberpunk dark theme — responsive, clean, compact */
-    
     :root{
       --bg: #050505;
       --card: rgba(255,255,255,0.03);
@@ -33,29 +32,6 @@
       --radius: 12px;
       --card-pad: 16px;
     }
-    /* Neon glow borders */
-.card-prediction {
-    border: 2px solid #00eaff !important;
-    box-shadow: 0 0 15px rgba(0, 234, 255, 0.6) !important;
-}
-
-.card-alert {
-    border: 2px solid #ff4d6d !important;
-    box-shadow: 0 0 15px rgba(255, 77, 109, 0.55) !important;
-}
-
-.card-health {
-    border: 2px solid #ffd166 !important;
-    box-shadow: 0 0 15px rgba(255, 209, 102, 0.55) !important;
-}
-
-/* Neon title glow */
-.card-title {
-    font-weight: 800;
-    color: #ffffff;
-    text-shadow: 0 0 10px currentColor;
-}
-
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -119,14 +95,31 @@
       border-radius:14px;padding:14px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));position:relative;overflow:visible;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       border: 1px solid rgba(255,255,255,0.02);
+      transition: box-shadow .28s, transform .18s, border-color .22s;
+      position:relative;
     }
-    .glow-card .heading{font-weight:800;margin:0 0 8px 0}
+    .glow-card:hover{transform:translateY(-4px)}
+    .glow-card .heading{font-weight:800;margin:0 0 8px 0;color:#fff}
     .glow-card .sub{color:var(--muted);font-size:0.9rem}
 
-    /* Neon border variants */
-    .glow--prediction{box-shadow:0 10px 40px rgba(0,234,255,0.06);border-left:6px solid rgba(0,234,255,0.14)}
-    .glow--alerts{box-shadow:0 10px 40px rgba(255,77,109,0.06);border-left:6px solid rgba(255,77,109,0.12)}
-    .glow--health{box-shadow:0 10px 40px rgba(255,209,102,0.06);border-left:6px solid rgba(255,209,102,0.12)}
+    /* Neon border variants: we add an outer glowy pseudo element for stronger glow */
+    .glow--prediction{border-left:6px solid rgba(0,234,255,0.14)}
+    .glow--prediction::before{
+      content:"";position:absolute;left:-6px;top:-6px;bottom:-6px;width:6px;border-radius:8px;background:linear-gradient(180deg, rgba(0,234,255,0.08), rgba(0,234,255,0.02));filter:blur(8px);pointer-events:none;
+    }
+    .glow--prediction:hover{box-shadow:0 15px 60px rgba(0,234,255,0.12)}
+
+    .glow--alerts{border-left:6px solid rgba(255,77,109,0.12)}
+    .glow--alerts::before{
+      content:"";position:absolute;left:-6px;top:-6px;bottom:-6px;width:6px;border-radius:8px;background:linear-gradient(180deg, rgba(255,77,109,0.08), rgba(255,77,109,0.02));filter:blur(8px);pointer-events:none;
+    }
+    .glow--alerts:hover{box-shadow:0 15px 60px rgba(255,77,109,0.12)}
+
+    .glow--health{border-left:6px solid rgba(255,209,102,0.12)}
+    .glow--health::before{
+      content:"";position:absolute;left:-6px;top:-6px;bottom:-6px;width:6px;border-radius:8px;background:linear-gradient(180deg, rgba(255,209,102,0.08), rgba(255,209,102,0.02));filter:blur(8px);pointer-events:none;
+    }
+    .glow--health:hover{box-shadow:0 15px 60px rgba(255,209,102,0.12)}
 
     /* Small input styles for the alerts settings */
     .input-ctrl{background:#0b0b0b;border:1px solid rgba(255,255,255,0.04);color:#fff;padding:8px;border-radius:8px;width:100px}
@@ -139,10 +132,10 @@
       color:#fff;cursor:pointer;min-width:160px;
     }
     .custom-select .selected{display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .custom-select .menu{position:absolute;left:0;top:calc(100% + 8px);background:rgba(0,0,0,0.8);border-radius:10px;padding:6px;min-width:200px;z-index:60;box-shadow:0 10px 30px rgba(0,0,0,0.6);display:none}
-    .custom-select .menu .item{padding:8px;border-radius:8px;color:#fff}
+    .custom-select .menu{position:absolute;left:0;top:calc(100% + 8px);background:linear-gradient(180deg, rgba(10,10,10,0.95), rgba(6,6,6,0.95));border-radius:10px;padding:6px;min-width:220px;z-index:60;box-shadow:0 10px 30px rgba(0,0,0,0.6);display:none}
+    .custom-select .menu .item{padding:10px;border-radius:8px;color:#fff}
     .custom-select .menu .item:hover{background:rgba(255,255,255,0.02)}
-    .custom-select .chev{opacity:0.9;color:var(--neon);font-weight:700}
+    .custom-select .chev{opacity:0.95;color:var(--neon);font-weight:700}
 
     /* Small legend buttons to avoid Chart.js strike-through */
     .legend-buttons{display:flex;gap:10px;align-items:center}
@@ -410,7 +403,6 @@
     try{
       histChart.zoom(amount);
     }catch(e){
-      // simple fallback: reduce visible window range via index min/max
       const len = histChart.data.labels.length;
       if(!len) return;
       const visible = Math.max(6, Math.round(len * (1/Math.abs(amount))));
@@ -559,9 +551,8 @@
 
         // push to live chart
         const tLabel = new Date().toLocaleTimeString();
-        liveChart.data.labels.push(tLabel);
-        // ensure dataset arrays exist
         while(liveChart.data.datasets.length < 3) liveChart.data.datasets.push({data:[]});
+        liveChart.data.labels.push(tLabel);
         liveChart.data.datasets[0].data.push(val.gas_ppm);
         liveChart.data.datasets[1].data.push(val.temperature);
         liveChart.data.datasets[2].data.push(val.humidity);
