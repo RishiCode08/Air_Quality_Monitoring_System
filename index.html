@@ -105,21 +105,60 @@
     /* Neon border variants: we add an outer glowy pseudo element for stronger glow */
     .glow--prediction{border-left:6px solid rgba(0,234,255,0.14)}
     .glow--prediction::before{
-      content:"";position:absolute;left:-6px;top:-6px;bottom:-6px;width:6px;border-radius:8px;background:linear-gradient(180deg, rgba(0,234,255,0.08), rgba(0,234,255,0.02));filter:blur(8px);pointer-events:none;
-    }
-    .glow--prediction:hover{box-shadow:0 15px 60px rgba(0,234,255,0.12)}
+  content:"";
+  position:absolute;
+  left:-8px;
+  top:-8px;
+  bottom:-8px;
+  width:10px;
+  border-radius:10px;
+  background:rgba(0,234,255,0.45);
+  filter:blur(18px);
+  pointer-events:none;
+}
+.glow--prediction:hover{
+  box-shadow:0 0 35px rgba(0,234,255,0.45), 0 0 80px rgba(0,234,255,0.25);
+  border-left-color:#00eaff;
+}
+
 
     .glow--alerts{border-left:6px solid rgba(255,77,109,0.12)}
-    .glow--alerts::before{
-      content:"";position:absolute;left:-6px;top:-6px;bottom:-6px;width:6px;border-radius:8px;background:linear-gradient(180deg, rgba(255,77,109,0.08), rgba(255,77,109,0.02));filter:blur(8px);pointer-events:none;
-    }
-    .glow--alerts:hover{box-shadow:0 15px 60px rgba(255,77,109,0.12)}
+    ..glow--alerts::before{
+  content:"";
+  position:absolute;
+  left:-8px;
+  top:-8px;
+  bottom:-8px;
+  width:10px;
+  border-radius:10px;
+  background:rgba(255,77,109,0.45);
+  filter:blur(18px);
+  pointer-events:none;
+}
+.glow--alerts:hover{
+  box-shadow:0 0 35px rgba(255,77,109,0.45), 0 0 80px rgba(255,77,109,0.25);
+  border-left-color:#ff4d6d;
+}
+
 
     .glow--health{border-left:6px solid rgba(255,209,102,0.12)}
     .glow--health::before{
-      content:"";position:absolute;left:-6px;top:-6px;bottom:-6px;width:6px;border-radius:8px;background:linear-gradient(180deg, rgba(255,209,102,0.08), rgba(255,209,102,0.02));filter:blur(8px);pointer-events:none;
-    }
-    .glow--health:hover{box-shadow:0 15px 60px rgba(255,209,102,0.12)}
+  content:"";
+  position:absolute;
+  left:-8px;
+  top:-8px;
+  bottom:-8px;
+  width:10px;
+  border-radius:10px;
+  background:rgba(255,209,102,0.45);
+  filter:blur(18px);
+  pointer-events:none;
+}
+.glow--health:hover{
+  box-shadow:0 0 35px rgba(255,209,102,0.45), 0 0 80px rgba(255,209,102,0.25);
+  border-left-color:#ffd166;
+}
+
 
     /* Small input styles for the alerts settings */
     .input-ctrl{background:#0b0b0b;border:1px solid rgba(255,255,255,0.04);color:#fff;padding:8px;border-radius:8px;width:100px}
@@ -772,4 +811,5 @@
   </script>
 </body>
 </html>
+
 
